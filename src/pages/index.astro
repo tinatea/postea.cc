@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import EventCard from '../components/EventCard.astro';
+import { splitEvents, taipeiToday } from '../lib/classify.mjs';
+import { loadEvents, loadSite } from '../lib/load';
+
+const site = loadSite();
+const { upcoming } = splitEvents(await loadEvents(), taipeiToday());
+const next = upcoming[0];
+const comma = site.tagline.indexOf('，');
+const titleLead = comma === -1 ? site.tagline : site.tagline.slice(0, comma);
+const titleRest = comma === -1 ? '' : site.tagline.slice(comma + 1);
+---
+
+<Base title="首頁" description={site.bio} home>
+  <section class="hero" aria-label="香語所">
+    <div class="hero-band" aria-hidden="true">
+      <div class="wrap hero-lockup">
+        <img class="hero-stamp" src="/brand/stamp.svg" width="240" height="320" alt="" />
+        <img class="hero-postmark" src="/brand/postmark.svg" width="280" height="200" alt="" />
+        <p class="hero-word" translate="no">{site.wordmark}</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="stamp hero-card">
+        <p class="script">ABOUT</p>
+        <p class="kicker">台北 · 調香工作室</p>
+        <h1>
+          {titleLead}，{titleRest && <><br />{titleRest}</>}
+        </h1>
+        <p class="bio">{site.bio}</p>
+        <div class="hero-actions">
+          <a class="button" href="#next">下一場活動</a>
+          <a class="button-ghost" href={site.instagram} rel="noopener noreferrer">Instagram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="next">
+    {
+      next ? (
+        <EventCard event={next} featured />
+      ) : (
+        <p class="empty">目前沒有即將舉行的活動。新的場次會出現在這裡。</p>
+      )
+    }
+  </section>
+
+  <section class="wrap">
+    <h2 class="sr-only">其他頁面</h2>
+    <div class="paths">
+      <a class="path" href="/experiences">
+        <strong>課程與體驗</strong>
+        <span>一個人的香遇，或看看已經調好的香。</span>
+      </a>
+      <a class="path" href="/recaps">
+        <strong>活動紀錄</strong>
+        <span>每場結束後的照片與文字。</span>
+      </a>
+      <a class="path" href="/posters">
+        <strong>文宣</strong>
+        <span>主視覺與海報，可以下載。</span>
+      </a>
+    </div>
+  </section>
+</Base>

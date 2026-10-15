@@ -1,0 +1,96 @@
+---
+import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { loadSite } from '../lib/load';
+import type { WorkshopEvent } from '../lib/types';
+
+interface Props {
+  event: WorkshopEvent;
+  featured?: boolean;
+  past?: boolean;
+}
+
+const { event, featured = false, past = false } = Astro.props;
+const site = loadSite();
+const when = formatEventDate(event.date);
+const time = formatTimeRange(event.startTime, event.endTime);
+const dateDots = event.date.replaceAll('-', '.');
+const facts = [
+  ['日期', when],
+  ['時間', time],
+  ['地點', event.venue],
+  ['費用', event.price],
+  ['人數', event.capacity],
+].filter(([, value]) => value);
+---
+
+<article
+  class:list={['stamp', 'event', { 'event-featured': featured }]}
+  id={event.id}
+  style={event.accentColor ? `--event-accent: ${event.accentColor}` : undefined}
+>
+  <span class="event-accent" aria-hidden="true"></span>
+  {
+    featured && (
+      <p class="postcard">
+        <span class="script">TO</span>
+        <span>Special You</span>
+        <span class="script">DATE</span>
+        <span>{dateDots}</span>
+      </p>
+    )
+  }
+  {featured && <p class="kicker">下一場</p>}
+  <h2 class="event-title">{event.title}</h2>
+  <dl class="meta">
+    {
+      facts.map(([label, value]) => (
+        <div>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  {event.description && <p class="event-copy">{event.description}</p>}
+  {
+    event.takeHome && (
+      <p class="takehome">
+        <span>帶走</span>
+        {event.takeHome}
+      </p>
+    )
+  }
+  <div class="event-actions">
+    {
+      past ? (
+        <p class="past-mark">已結束</p>
+      ) : event.registrationUrl ? (
+        <a class="button" href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+          報名
+          <span class="sr-only">（在新視窗開啟報名表）</span>
+        </a>
+      ) : (
+        <p class:list={['pending', { 'pending-large': featured }]} role="status">報名即將開放</p>
+      )
+    }
+    {
+      !past && site.lineUrl && (
+        <a
+          class:list={[site.lineUrl && event.registrationUrl ? 'button-ghost' : 'button', { 'button-large': featured }]}
+          href={site.lineUrl}
+          rel="noopener noreferrer"
+        >
+          LINE 詢問
+          {site.lineId && <span class="line-id">{site.lineId}</span>}
+        </a>
+      )
+    }
+    {
+      featured && (
+        <a class="text-link" href={`/events#${event.id}`}>
+          在行事曆中查看
+        </a>
+      )
+    }
+  </div>
+</article>

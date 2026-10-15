@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import Offerings from '../components/Offerings.astro';
+import { loadProducts } from '../lib/load';
+
+const groups = loadProducts();
+---
+
+<Base
+  title="課程與體驗"
+  description="香語所的調香體驗與商品。香遇是一個人自由調香，每月主題小聚是一群人跟著主題玩香。價格與說明以價目表為準。"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">價目</p>
+      <h1>課程與體驗</h1>
+      <p class="lede">香遇是一個人自由調香。每月主題小聚是一群人跟著主題玩香。下面的名稱、說明和價格照表上的文字。</p>
+    </header>
+
+    <Offerings />
+
+    <div id="experiences-list">
+      {
+        groups.map((group) => (
+          <section class="group">
+            <h2>{group.heading}</h2>
+            <div class="stack">
+              {group.items.map((item) => (
+                <article class="stamp product">
+                  <h3 class="product-name">{item.name}</h3>
+                  {item.price && <p class="price">{item.price}</p>}
+                  {item.duration && <p class="duration">{item.duration}</p>}
+                  {item.description && <p class="exact">{item.description}</p>}
+                </article>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+
+    <figure class="placeholder">
+      <img
+        src="/images/placeholders/studio-table.jpg"
+        width="288"
+        height="228"
+        alt="工作桌上的滴管瓶與深色玻璃瓶。暫用圖片，裁自 Instagram 截圖。"
+        loading="lazy"
+      />
+      <figcaption>TODO：暫用照片，裁自 Instagram 截圖，請換成原始檔。</figcaption>
+    </figure>
+  </div>
+</Base>

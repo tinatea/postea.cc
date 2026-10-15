@@ -1,0 +1,38 @@
+/*
+  Postèa 香語所 — 全站色彩與字體只放這個檔案。
+  官方色票若有更新，改下面的色碼即可，不用動其他頁面。
+
+  青色 #62A297 是標誌的主色，只用在首頁標誌區、頁尾外框，或小點綴。
+  資訊卡的底色是暖米色 #F2EEEB，頁面底是淺灰 #FAFAFA。不要把卡片改成青色。
+
+  單場活動可以有自己的主題色（例如 11 月「桂花茶室」的桂花金 #D9A441）。
+  那個顏色寫在 data/events.yml 的 accentColor，不要加進這裡。
+
+  鼠尾草綠標籤上的字用近黑 #1A1A1A：白色在 #899272 上對比不夠。
+*/
+
+:root {
+  --color-page: #FAFAFA;
+  --color-card: #F2EEEB;
+  --color-ink: #545454;
+  --color-teal: #62A297;
+  --color-camellia: #D4082C;
+  --color-flower: #AF3332;
+  --color-sage: #899272;
+  --color-on-sage: #1A1A1A;
+  --color-aqua: #A2EAF1;
+  --color-rain: #99DFEB;
+  --color-stamen: #F1D551;
+  --color-leaf: #2C663B;
+  --color-on-camellia: #ffffff;
+
+  --font-word: "Outfit", "Avenir Next", "Trebuchet MS", sans-serif;
+  --font-serif: "Noto Serif TC", "Noto Serif CJK TC", "Songti TC", "PMingLiU", serif;
+  --font-sans: "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-script: "Caveat", "Segoe Script", cursive;
+  --font-hand: "ZCOOL KuaiLe", "Hannotate TC", "PingFang TC", cursive;
+
+  --space-page: clamp(1.25rem, 4vw, 2.75rem);
+  --content: 72rem;
+  --measure: 40rem;
+}

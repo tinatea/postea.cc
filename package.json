@@ -1,0 +1,20 @@
+{
+  "name": "postea-cc",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "astro preview",
+    "check": "node --experimental-strip-types scripts/check.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.6.0",
+    "astro": "^5.14.1",
+    "js-yaml": "^4.1.0",
+    "marked": "^16.3.0"
+  }
+}

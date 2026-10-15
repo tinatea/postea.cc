@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+import { loadSite } from '../lib/load';
+
+const site = loadSite();
+const paragraphs = site.about
+  .split(/\n\s*\n/)
+  .map((paragraph) => paragraph.trim())
+  .filter(Boolean);
+---
+
+<Base title="關於與聯絡" description="關於 Postèa 香語所與 Tina，以及 Instagram、LINE、X 聯絡方式。">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">關於</p>
+      <h1>關於與聯絡</h1>
+    </header>
+
+    <div class="stamp">
+      <div class="about-copy">
+        {
+          paragraphs.map((paragraph) =>
+            paragraph.startsWith('TODO') ? <p class="todo">{paragraph}</p> : <p>{paragraph}</p>,
+          )
+        }
+      </div>
+
+      <ul class="contact-list">
+        <li>
+          Instagram：
+          <a href={site.instagram} rel="noopener noreferrer">@{site.instagramHandle}</a>
+        </li>
+        <li>
+          {
+            site.lineUrl ? (
+              <>
+                LINE：
+                <a href={site.lineUrl} rel="noopener noreferrer">
+                  {site.lineId}
+                </a>
+              </>
+            ) : (
+              <span class="todo">LINE：TODO：待補上官方帳號連結（填在 src/data/site.yml 的 lineUrl）</span>
+            )
+          }
+        </li>
+        {
+          site.xUrl && (
+            <li>
+              X：
+              <a href={site.xUrl} rel="noopener noreferrer">
+                @{site.xHandle}
+              </a>
+            </li>
+          )
+        }
+      </ul>
+      {
+        site.lineUrl && (
+          <div class="contact-actions">
+            <a class="button" href={site.lineUrl} rel="noopener noreferrer">
+              LINE 詢問
+              {site.lineId && <span class="line-id">{site.lineId}</span>}
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Base>

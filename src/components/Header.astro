@@ -1,0 +1,46 @@
+---
+interface Props {
+  wordmark: string;
+  nameZh: string;
+  current: string;
+}
+
+const { wordmark, nameZh, current } = Astro.props;
+
+const items = [
+  { href: '/', label: '首頁' },
+  { href: '/events', label: '活動行事曆' },
+  { href: '/experiences', label: '課程與體驗' },
+  { href: '/recaps', label: '活動紀錄' },
+  { href: '/posters', label: '文宣' },
+  { href: '/about', label: '關於' },
+];
+---
+
+<header class="site-header">
+  <div class="wrap header-bar">
+    <a class="brand" href="/">
+      <img src="/brand/stamp.svg" width="240" height="320" alt="" />
+      <span class="brand-name">
+        <span class="wordmark" translate="no">{wordmark}</span>
+        <span class="brand-zh">{nameZh}</span>
+      </span>
+    </a>
+    <details class="menu">
+      <summary class="menu-button">選單</summary>
+      <nav aria-label="主要">
+        <ul>
+          {
+            items.map((item) => (
+              <li>
+                <a href={item.href} aria-current={current === item.href ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>

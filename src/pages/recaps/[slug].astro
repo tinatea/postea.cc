@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatEventDate } from '../../lib/classify.mjs';
+import { loadRecaps, renderMarkdown } from '../../lib/load';
+
+export function getStaticPaths() {
+  return loadRecaps().map((recap) => ({
+    params: { slug: recap.slug },
+    props: { recap },
+  }));
+}
+
+const { recap } = Astro.props;
+const html = renderMarkdown(recap.body);
+---
+
+<Base title={recap.title} description={recap.excerpt || recap.title}>
+  <article class="wrap">
+    <header class="page-head">
+      <p class="kicker">{formatEventDate(recap.date)}</p>
+      <h1>{recap.title}</h1>
+      {recap.excerpt && <p class="lede">{recap.excerpt}</p>}
+    </header>
+    {
+      recap.photos.length > 0 && (
+        <div class="gallery">
+          {recap.photos.map((photo) => (
+            <img src={photo.src} alt={photo.alt} loading="lazy" />
+          ))}
+        </div>
+      )
+    }
+    <div class="prose" set:html={html} />
+    <p><a class="text-link" href="/recaps">回到活動紀錄</a></p>
+  </article>
+</Base>
