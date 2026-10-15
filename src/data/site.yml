@@ -28,5 +28,5 @@ about: |
 # 選用。已「發佈到網路」的 Google 試算表 CSV 網址。
 # 留空：使用 data/events.yml。
 # 有填：建置時優先讀試算表。讀取失敗或一場都沒有，自動改回 events.yml。
-# 試算表會整份取代 events.yml，不是合併。欄位說明見 README。
+# 試算表會整份取代 events.yml，不是合併。欄位說明見 docs/維護說明.md。
 eventsSheetUrl: ""
