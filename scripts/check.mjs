@@ -20,6 +20,7 @@ assert.equal(first.venue, '台北市｜捷運南京復興站旁（詳細地址�
 assert.equal(first.price, 'NT$800／人');
 assert.equal(first.capacity, '4–10 人（滿 4 人開課）');
 assert.match(first.title, /桂花茶室/);
+assert.match(first.description, /Tina 會帶大家一支一支聞香、講解，中場一起喝一壺桂花烏龍，分享彼此調出的茶室。/);
 assert.match(first.takeHome, /10ml/);
 assert.match(first.takeHome, /配方卡/);
 
@@ -81,6 +82,14 @@ const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
 for (const hex of ['#FAFAFA', '#F2EEEB', '#545454', '#62A297', '#D4082C', '#899272', '#A2EAF1']) {
   assert.ok(theme.includes(hex), `theme.css 缺少 ${hex}`);
 }
+assert.match(theme, /LXGW WenKai TC/);
+assert.equal(theme.includes('Noto'), false);
+assert.equal(theme.includes('ZCOOL'), false);
+const fontLink = fs.readFileSync('src/layouts/Base.astro', 'utf8');
+assert.match(fontLink, /family=LXGW\+WenKai\+TC:wght@300;400;700/);
+assert.equal(fontLink.includes('Noto'), false);
+assert.equal(fontLink.includes('ZCOOL'), false);
+assert.equal(fontLink.includes('Postéa'), false);
 
 const site = yaml.load(fs.readFileSync('src/data/site.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
 assert.equal(site.wordmark, 'POSTÈA');

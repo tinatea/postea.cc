@@ -27,10 +27,11 @@
   --color-on-camellia: #ffffff;
 
   --font-word: "Outfit", "Avenir Next", "Trebuchet MS", sans-serif;
-  --font-serif: "Noto Serif TC", "Noto Serif CJK TC", "Songti TC", "PMingLiU", serif;
-  --font-sans: "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --font-script: "Caveat", "Segoe Script", cursive;
-  --font-hand: "ZCOOL KuaiLe", "Hannotate TC", "PingFang TC", cursive;
+  /* 中文標題與內文同一套霞鶩文楷，只靠字級與字重區分。 */
+  --font-serif: "LXGW WenKai TC", sans-serif;
+  --font-sans: "LXGW WenKai TC", sans-serif;
+  --font-hand: "LXGW WenKai TC", sans-serif;
 
   --space-page: clamp(1.25rem, 4vw, 2.75rem);
   --content: 72rem;
