@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import CalendarMonth from '../../components/CalendarMonth.astro';
+import Offerings from '../../components/Offerings.astro';
+import { defaultMonth, parseMonth } from '../../lib/calendar.mjs';
+import { taipeiToday } from '../../lib/classify.mjs';
+import { loadEvents } from '../../lib/load';
+
+const events = await loadEvents();
+const today = taipeiToday();
+const parsed = parseMonth(defaultMonth(events, today));
+const year = parsed?.year ?? Number(today.slice(0, 4));
+const month = parsed?.month ?? Number(today.slice(5, 7));
+---
+
+<Base
+  title="月曆"
+  description="Postèa 香語所的月曆。看每一天的主題小聚，以及這個月的時間、地點與報名。"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">月曆</p>
+      <h1>月曆</h1>
+      <p class="lede">
+        這裡的場次是每月主題小聚：一群人跟著主題玩香。想一個人自由調香，看課程與體驗的香遇。
+      </p>
+    </header>
+
+    <CalendarMonth events={events} today={today} year={year} month={month} />
+    <Offerings />
+  </div>
+</Base>

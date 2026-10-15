@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 interface Props {
   wordmark: string;
   nameZh: string;
@@ -7,14 +9,18 @@ interface Props {
 
 const { wordmark, nameZh, current } = Astro.props;
 
-const items = [
+const items: { href: string; label: string; icon?: 'calendar-blank' }[] = [
   { href: '/', label: '首頁' },
-  { href: '/events', label: '活動行事曆' },
+  { href: '/events', label: '月曆', icon: 'calendar-blank' },
   { href: '/experiences', label: '課程與體驗' },
   { href: '/recaps', label: '活動紀錄' },
-  { href: '/posters', label: '文宣' },
   { href: '/about', label: '關於' },
 ];
+
+function isCurrent(href: string) {
+  if (href === '/') return current === '/';
+  return current === href || current.startsWith(`${href}/`);
+}
 ---
 
 <header class="site-header">
@@ -27,13 +33,17 @@ const items = [
       </span>
     </a>
     <details class="menu">
-      <summary class="menu-button">選單</summary>
+      <summary class="menu-button" aria-label="選單">
+        <Icon name="list" class="icon-list" />
+        <Icon name="x" class="icon-close" />
+      </summary>
       <nav aria-label="主要">
         <ul>
           {
             items.map((item) => (
               <li>
-                <a href={item.href} aria-current={current === item.href ? 'page' : undefined}>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.icon && <Icon name={item.icon} />}
                   {item.label}
                 </a>
               </li>

@@ -3,7 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv, parseProducts } from './products.mjs';
-import type { OfferingPoint, Offerings, Poster, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
+import type { OfferingPoint, Offerings, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
 
@@ -192,19 +192,6 @@ export function loadOfferings(): Offerings {
 
 export function loadProducts(): ProductGroup[] {
   return parseProducts(readText('src/data/products.csv')) as ProductGroup[];
-}
-
-export function loadPosters(): Poster[] {
-  const raw = readYaml('src/data/posters.yml');
-  if (!Array.isArray(raw)) return [];
-  return raw.flatMap((item) => {
-    if (!item || typeof item !== 'object') return [];
-    const record = item as Record<string, unknown>;
-    const title = asString(record.title);
-    const file = asString(record.file);
-    if (!title || !file) return [];
-    return [{ title, file, note: asString(record.note) || undefined }];
-  });
 }
 
 function parseFrontmatter(raw: string): { data: Record<string, unknown>; body: string } {

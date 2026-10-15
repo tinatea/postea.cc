@@ -63,12 +63,6 @@ export type ProductGroup = {
   items: ProductItem[];
 };
 
-export type Poster = {
-  title: string;
-  file: string;
-  note?: string;
-};
-
 export type RecapPhoto = {
   src: string;
   alt: string;

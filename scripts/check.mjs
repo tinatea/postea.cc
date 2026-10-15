@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import yaml from 'js-yaml';
 import { splitEvents, formatEventDate } from '../src/lib/classify.mjs';
+import { buildMonthGrid, defaultMonth, shortEventName } from '../src/lib/calendar.mjs';
 import { parseProducts } from '../src/lib/products.mjs';
 import { eventsFromCsv } from '../src/lib/load.ts';
 
@@ -108,6 +109,20 @@ const pointText = JSON.stringify(offerings.gathering.points);
 assert.match(pointText, /有主題/);
 assert.match(pointText, /桂花茶室/);
 assert.match(pointText, /桂花烏龍/);
+
+assert.equal(shortEventName(first.title), '桂花茶室');
+const november = buildMonthGrid(2026, 11);
+assert.equal(november[0], 1);
+assert.equal(november[20], 21);
+assert.equal(defaultMonth([{ date: '2026-11-21' }], '2026-10-15'), '2026-11');
+assert.equal(fs.existsSync('src/pages/posters.astro'), false);
+assert.equal(fs.existsSync('src/pages/events.astro'), false);
+assert.equal(fs.existsSync('src/data/posters.yml'), false);
+const header = fs.readFileSync('src/components/Header.astro', 'utf8');
+assert.equal(header.includes('文宣'), false);
+assert.match(header, /aria-label="選單"/);
+assert.match(header, /name="list"/);
+assert.match(header, /calendar-blank/);
 
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
 assert.ok(fs.existsSync('public/brand/stamp.svg'));
