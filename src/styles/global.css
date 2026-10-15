@@ -14,7 +14,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
-  line-height: 1.75;
+  line-height: 1.85;
   font-weight: 400;
 }
 
@@ -33,9 +33,9 @@ h2,
 h3,
 .hand {
   font-family: var(--font-hand);
-  font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
 }
 
 h1 {
@@ -442,9 +442,10 @@ main {
 
 .event-title {
   font-family: var(--font-serif);
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  font-size: clamp(1.45rem, 3vw, 2.05rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
   margin: 0.15rem 0 0.9rem;
 }
 
@@ -597,8 +598,9 @@ main {
 
 .product-name {
   font-family: var(--font-serif);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
+  line-height: 1.5;
   white-space: pre-wrap;
 }
 
@@ -667,8 +669,9 @@ main {
   display: block;
   font-family: var(--font-hand);
   font-size: 1.25rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
   margin-bottom: 0.2rem;
 }
 
