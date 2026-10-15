@@ -1,0 +1,27 @@
+# 網站基本資料。改這裡，不用改版面程式。
+
+name: Postéa 香語所
+wordmark: POSTEA
+nameZh: 香語所
+tagline: 每一瓶香，都是一則心事
+bio: |
+  在香語所，每一瓶香，都是一則心事。將心意封存，待開瓶時，氣味會代替說完那句沒說出口的話。
+instagram: https://www.instagram.com/postea.scent/
+instagramHandle: postea.scent
+
+# LINE 官方帳號的網址。還沒有就留空字串，關於頁會顯示待補，不會出現壞掉的按鈕。
+lineUrl: ""
+
+siteUrl: https://postea.cc
+
+# 關於頁的文字。空一行就是下一段。以 TODO 開頭的段落會顯示成「待補」。
+about: |
+  Postéa 香語所是 Tina 在台北的調香工作室。瓶子不大，一次只陪幾個人，把還沒說出口的心意調進氣味裡。
+
+  TODO：請 Tina 補上個人介紹（調香師）。建議 80 到 150 字：怎麼開始調香、香語所想陪來的人做什麼。
+
+# 選用。已「發佈到網路」的 Google 試算表 CSV 網址。
+# 留空：使用 data/events.yml。
+# 有填：建置時優先讀試算表。讀取失敗或一場都沒有，自動改回 events.yml。
+# 試算表會整份取代 events.yml，不是合併。欄位說明見 README。
+eventsSheetUrl: ""

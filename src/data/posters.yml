@@ -1,0 +1,9 @@
+# 文宣清單。
+# 1. 把圖檔放進 public/posters/（檔名用英文，例如 osmanthus-tea-room.jpg）
+# 2. 在下面加一筆，file 以 /posters/ 開頭。
+# 現在是空的。要上架時把 [] 刪掉，改成清單，例如：
+#
+# - title: 桂花茶室主視覺（草稿）
+#   file: /posters/osmanthus-tea-room.jpg
+#   note: 草稿，之後換成定稿
+[]

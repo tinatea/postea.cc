@@ -1,0 +1,26 @@
+/*
+  Postéa 香語所 — 全站色彩與字體只放這個檔案。
+  官方色票若有更新，改下面的色碼即可，不用動其他頁面。
+
+  單場活動可以有自己的主題色（例如 11 月「桂花茶室」的桂花金 #D9A441）。
+  那個顏色寫在 data/events.yml 的 accentColor，不要加進這裡。
+*/
+
+:root {
+  --color-camellia: #B8272F;
+  --color-aqua: #CDEBEF;
+  --color-paper: #F7F1EA;
+  --color-blush: #F0E4E4;
+  --color-ink: #2B3445;
+  --color-amber: #C98A3D;
+  --color-wood: #D8B88A;
+  --color-leaf: #8B9074;
+  --color-on-camellia: #ffffff;
+
+  --font-serif: "Noto Serif TC", "Noto Serif CJK TC", "Songti TC", "PMingLiU", serif;
+  --font-sans: "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+
+  --space-page: clamp(1.25rem, 4vw, 2.75rem);
+  --content: 72rem;
+  --measure: 38rem;
+}

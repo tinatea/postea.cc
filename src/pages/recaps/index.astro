@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatEventDate } from '../../lib/classify.mjs';
+import { loadRecaps } from '../../lib/load';
+
+const recaps = loadRecaps();
+---
+
+<Base title="活動紀錄" description="香語所每場調香小聚結束後的照片與文字。">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">紀錄</p>
+      <h1>活動紀錄</h1>
+      <p class="lede">一場結束，就在這裡留一點氣味的尾巴。</p>
+    </header>
+
+    {
+      recaps.length === 0 ? (
+        <p class="empty">還沒有活動紀錄。每場結束後的照片和文字會出現在這裡。</p>
+      ) : (
+        <div class="stack">
+          {recaps.map((recap) => (
+            <a class="path" href={`/recaps/${recap.slug}`}>
+              <strong>{recap.title}</strong>
+              <span>
+                {formatEventDate(recap.date)}
+                {recap.excerpt ? ` · ${recap.excerpt}` : ''}
+              </span>
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</Base>

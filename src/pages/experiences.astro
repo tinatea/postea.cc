@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import { loadProducts } from '../lib/load';
+
+const groups = loadProducts();
+---
+
+<Base
+  title="課程與體驗"
+  description="香語所的調香體驗與商品。香遇、香信，以及空間噴霧與保養油。價格與說明以價目表為準。"
+>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">價目</p>
+      <h1>課程與體驗</h1>
+      <p class="lede">可以自己調，也可以帶走已經調好的。時間寫在每一項的說明裡。</p>
+    </header>
+
+    <figure class="placeholder" style="margin-bottom: 1.75rem; max-width: 36rem;">
+      <img
+        src="/images/placeholders/studio-table.jpg"
+        width="288"
+        height="228"
+        alt="工作桌上的滴管瓶與深色玻璃瓶。暫用圖片，裁自 Instagram 截圖。"
+        loading="lazy"
+      />
+      <figcaption>TODO：暫用照片，裁自 Instagram 截圖，請換成原始檔。</figcaption>
+    </figure>
+
+    {
+      groups.map((group) => (
+        <section class="group">
+          <h2>{group.heading}</h2>
+          <div class="stack">
+            {group.items.map((item) => (
+              <article class="stamp product">
+                <h3 class="product-name">{item.name}</h3>
+                {item.price && <p class="price">{item.price}</p>}
+                {item.duration && <p class="duration">{item.duration}</p>}
+                {item.description && <p class="exact">{item.description}</p>}
+              </article>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Base>

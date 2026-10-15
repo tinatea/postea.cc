@@ -1,0 +1,43 @@
+---
+interface Props {
+  wordmark: string;
+  nameZh: string;
+  tagline: string;
+  instagram: string;
+  instagramHandle: string;
+  lineUrl: string;
+}
+
+const { wordmark, nameZh, tagline, instagram, instagramHandle, lineUrl } = Astro.props;
+const year = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Taipei',
+  year: 'numeric',
+}).format(new Date());
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="wordmark" translate="no">{wordmark}</p>
+      <p>{nameZh} · 台北</p>
+    </div>
+    <p>{tagline}</p>
+    <ul class="footer-links">
+      <li>
+        <a href={instagram} rel="noopener noreferrer">Instagram @{instagramHandle}</a>
+      </li>
+      <li>
+        {
+          lineUrl ? (
+            <a href={lineUrl} rel="noopener noreferrer">
+              LINE
+            </a>
+          ) : (
+            'LINE（即將開放）'
+          )
+        }
+      </li>
+    </ul>
+  </div>
+  <p class="copyright">© {year} Postéa {nameZh}</p>
+</footer>
