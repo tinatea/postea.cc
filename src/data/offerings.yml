@@ -1,0 +1,23 @@
+# 課程頁與活動頁上方的對照。改文字即可。
+# 香遇是一個人；每月主題小聚是一群人。小聚費用若有調整，這裡和該場活動的 price 都要改。
+
+solo:
+  name: 香遇
+  kind: 一個人自由調香
+  pill: 一個人
+
+gathering:
+  name: 每月主題小聚
+  kind: 一群人跟著主題玩香
+  pill: 一群人
+  price: NT$800／人
+  points:
+    - title: 有主題
+      tone: sage
+      body: 每個月一則氣味故事。這個月是桂花茶室。
+    - title: 有人帶
+      tone: red
+      body: Tina 帶著聞，也講解。每個人從同一個桂花基底出發，再調成自己的。
+    - title: 有一起的時光
+      tone: aqua
+      body: 兩小時的小聚，喝桂花烏龍，也分享彼此的瓶子。

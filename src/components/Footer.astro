@@ -1,14 +1,19 @@
 ---
 interface Props {
   wordmark: string;
+  name: string;
   nameZh: string;
   tagline: string;
   instagram: string;
   instagramHandle: string;
   lineUrl: string;
+  lineId: string;
+  xUrl: string;
+  xHandle: string;
 }
 
-const { wordmark, nameZh, tagline, instagram, instagramHandle, lineUrl } = Astro.props;
+const { wordmark, name, nameZh, tagline, instagram, instagramHandle, lineUrl, lineId, xUrl, xHandle } =
+  Astro.props;
 const year = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Taipei',
   year: 'numeric',
@@ -16,28 +21,40 @@ const year = new Intl.DateTimeFormat('en-CA', {
 ---
 
 <footer class="site-footer">
-  <div class="wrap footer-grid">
-    <div>
-      <p class="wordmark" translate="no">{wordmark}</p>
-      <p>{nameZh} · 台北</p>
+  <div class="wrap">
+    <div class="stamp footer-card">
+      <div class="footer-grid">
+        <div>
+          <p class="wordmark" translate="no">{wordmark}</p>
+          <p class="brand-zh">{nameZh}</p>
+          <p class="footer-place">台北</p>
+        </div>
+        <p class="footer-tagline">{tagline}</p>
+        <ul class="footer-links">
+          <li>
+            <a href={instagram} rel="noopener noreferrer">Instagram @{instagramHandle}</a>
+          </li>
+          {
+            lineUrl && (
+              <li>
+                <a href={lineUrl} rel="noopener noreferrer">
+                  LINE {lineId}
+                </a>
+              </li>
+            )
+          }
+          {
+            xUrl && (
+              <li>
+                <a href={xUrl} rel="noopener noreferrer">
+                  X @{xHandle}
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+      <p class="copyright">© {year} {name}</p>
     </div>
-    <p>{tagline}</p>
-    <ul class="footer-links">
-      <li>
-        <a href={instagram} rel="noopener noreferrer">Instagram @{instagramHandle}</a>
-      </li>
-      <li>
-        {
-          lineUrl ? (
-            <a href={lineUrl} rel="noopener noreferrer">
-              LINE
-            </a>
-          ) : (
-            'LINE（即將開放）'
-          )
-        }
-      </li>
-    </ul>
   </div>
-  <p class="copyright">© {year} Postéa {nameZh}</p>
 </footer>

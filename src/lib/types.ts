@@ -22,9 +22,33 @@ export type SiteConfig = {
   instagram: string;
   instagramHandle: string;
   lineUrl: string;
+  lineId: string;
+  xUrl: string;
+  xHandle: string;
   siteUrl: string;
   about: string;
   eventsSheetUrl: string;
+};
+
+export type OfferingPoint = {
+  title: string;
+  body: string;
+  tone: 'sage' | 'red' | 'aqua';
+};
+
+export type Offerings = {
+  solo: {
+    name: string;
+    kind: string;
+    pill: string;
+  };
+  gathering: {
+    name: string;
+    kind: string;
+    pill: string;
+    price: string;
+    points: OfferingPoint[];
+  };
 };
 
 export type ProductItem = {

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import EventCard from '../components/EventCard.astro';
+import Offerings from '../components/Offerings.astro';
 import { splitEvents, taipeiToday } from '../lib/classify.mjs';
 import { loadEvents } from '../lib/load';
 
@@ -10,14 +11,18 @@ const { upcoming, past } = splitEvents(await loadEvents(), today);
 
 <Base
   title="活動行事曆"
-  description="Postéa 香語所的調香小聚。看日期、地點、費用與報名。還沒開放的場次會標示報名即將開放。"
+  description="Postèa 香語所的調香小聚。看日期、地點、費用與報名。還沒開放的場次會標示報名即將開放，也可以先用 LINE 詢問。"
 >
   <div class="wrap">
     <header class="page-head">
       <p class="kicker">行事曆</p>
       <h1>活動行事曆</h1>
-      <p class="lede">選一場坐下來。從同一個主題出發，調成自己的那一瓶。</p>
+      <p class="lede">
+        這裡的場次是每月主題小聚：一群人跟著主題玩香。想一個人自由調香，看課程與體驗的香遇。
+      </p>
     </header>
+
+    <Offerings />
 
     <section>
       <div class="section-head">

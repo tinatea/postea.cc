@@ -1,0 +1,37 @@
+---
+import { loadOfferings } from '../lib/load';
+
+const offerings = loadOfferings();
+const { solo, gathering } = offerings;
+---
+
+<section class="offerings" aria-labelledby="offerings-title">
+  <div class="stamp">
+    <p class="script">ABOUT</p>
+    <h2 id="offerings-title">兩種方式</h2>
+    <div class="ways">
+      <article class="way">
+        {solo.pill && <p class="pill pill-sage">{solo.pill}</p>}
+        <h3>{solo.name}</h3>
+        <p class="way-kind">{solo.kind}</p>
+        <p><a class="way-link" href="/experiences#experiences-list">看香遇的價目</a></p>
+      </article>
+      <article class="way">
+        {gathering.pill && <p class="pill pill-red">{gathering.pill}</p>}
+        <h3>{gathering.name}</h3>
+        <p class="way-kind">{gathering.kind}</p>
+        {gathering.price && <p class="way-price">{gathering.price}</p>}
+        <ul class="points">
+          {
+            gathering.points.map((point) => (
+              <li>
+                <span class:list={['pill', `pill-${point.tone}`]}>{point.title}</span>
+                <p>{point.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>

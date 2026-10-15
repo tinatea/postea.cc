@@ -13,29 +13,26 @@ const titleRest = comma === -1 ? '' : site.tagline.slice(comma + 1);
 ---
 
 <Base title="首頁" description={site.bio} home>
-  <section class="hero">
+  <section class="hero" aria-label="香語所">
+    <div class="hero-band" aria-hidden="true">
+      <div class="wrap hero-lockup">
+        <img class="hero-stamp" src="/brand/stamp.svg" width="240" height="320" alt="" />
+        <img class="hero-postmark" src="/brand/postmark.svg" width="280" height="200" alt="" />
+        <p class="hero-word" translate="no">{site.wordmark}</p>
+      </div>
+    </div>
     <div class="wrap">
-      <p class="kicker">台北 · 調香工作室</p>
-      <div class="hero-layout">
-        <div>
-          <h1>
-            {titleLead}，{titleRest && <><br />{titleRest}</>}
-          </h1>
-          <p class="bio">{site.bio}</p>
-          <div class="hero-actions">
-            <a class="button" href="#next">下一場活動</a>
-            <a class="button-ghost" href={site.instagram} rel="noopener noreferrer">Instagram</a>
-          </div>
+      <div class="stamp hero-card">
+        <p class="script">ABOUT</p>
+        <p class="kicker">台北 · 調香工作室</p>
+        <h1>
+          {titleLead}，{titleRest && <><br />{titleRest}</>}
+        </h1>
+        <p class="bio">{site.bio}</p>
+        <div class="hero-actions">
+          <a class="button" href="#next">下一場活動</a>
+          <a class="button-ghost" href={site.instagram} rel="noopener noreferrer">Instagram</a>
         </div>
-        <figure class="placeholder">
-          <img
-            src="/images/placeholders/studio-rack.jpg"
-            width="288"
-            height="216"
-            alt="木架上排著琥珀色的滴管香油瓶。暫用圖片，裁自 Instagram 截圖。"
-          />
-          <figcaption>TODO：暫用照片，裁自 Instagram 截圖，請換成原始檔。</figcaption>
-        </figure>
       </div>
     </div>
   </section>
@@ -55,7 +52,7 @@ const titleRest = comma === -1 ? '' : site.tagline.slice(comma + 1);
     <div class="paths">
       <a class="path" href="/experiences">
         <strong>課程與體驗</strong>
-        <span>自己調一瓶，或把已經調好的香帶回家。</span>
+        <span>一個人的香遇，或看看已經調好的香。</span>
       </a>
       <a class="path" href="/recaps">
         <strong>活動紀錄</strong>

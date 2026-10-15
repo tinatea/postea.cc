@@ -1,10 +1,11 @@
 ---
 interface Props {
   wordmark: string;
+  nameZh: string;
   current: string;
 }
 
-const { wordmark, current } = Astro.props;
+const { wordmark, nameZh, current } = Astro.props;
 
 const items = [
   { href: '/', label: '首頁' },
@@ -19,8 +20,11 @@ const items = [
 <header class="site-header">
   <div class="wrap header-bar">
     <a class="brand" href="/">
-      <img src="/brand/logo.png" width="98" height="122" alt="香語所" />
-      <span class="wordmark" translate="no">{wordmark}</span>
+      <img src="/brand/stamp.svg" width="240" height="320" alt="" />
+      <span class="brand-name">
+        <span class="wordmark" translate="no">{wordmark}</span>
+        <span class="brand-zh">{nameZh}</span>
+      </span>
     </a>
     <details class="menu">
       <summary class="menu-button">選單</summary>

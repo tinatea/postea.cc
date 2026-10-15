@@ -16,7 +16,7 @@ const site = loadSite();
 const path = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '') || '/';
 const canonical = new URL(path, Astro.site ?? site.siteUrl).href;
 const documentTitle = home ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
-const image = new URL('/brand/logo.png', Astro.site ?? site.siteUrl).href;
+const image = new URL('/brand/og.png', Astro.site ?? site.siteUrl).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
@@ -29,7 +29,7 @@ const jsonLd = {
     addressLocality: '台北市',
     addressCountry: 'TW',
   },
-  sameAs: [site.instagram],
+  sameAs: [site.instagram, site.lineUrl, site.xUrl].filter(Boolean),
 };
 ---
 
@@ -41,7 +41,7 @@ const jsonLd = {
     <title>{documentTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#F7F1EA" />
+    <meta name="theme-color" content="#FAFAFA" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:site_name" content={site.name} />
@@ -49,7 +49,7 @@ const jsonLd = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
-    <meta property="og:image:alt" content="Postéa 香語所標誌" />
+    <meta property="og:image:alt" content="Postèa 香語所標誌" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={documentTitle} />
     <meta name="twitter:description" content={description} />
@@ -60,24 +60,28 @@ const jsonLd = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&family=Outfit:wght@600;700&family=ZCOOL+KuaiLe&display=swap"
       rel="stylesheet"
     />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <a class="skip" href="#main">跳到主要內容</a>
-    <Header wordmark={site.wordmark} current={path} />
+    <Header wordmark={site.wordmark} nameZh={site.nameZh} current={path} />
     <main id="main">
       <slot />
     </main>
     <Footer
       wordmark={site.wordmark}
+      name={site.name}
       nameZh={site.nameZh}
       tagline={site.tagline}
       instagram={site.instagram}
       instagramHandle={site.instagramHandle}
       lineUrl={site.lineUrl}
+      lineId={site.lineId}
+      xUrl={site.xUrl}
+      xHandle={site.xHandle}
     />
   </body>
 </html>

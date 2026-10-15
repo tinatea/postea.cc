@@ -1,4 +1,4 @@
-# Postéa 香語所
+# Postèa 香語所
 
 台北調香工作室的官方網站。頁面是繁體中文，網址是 [postea.cc](https://postea.cc)。
 
@@ -49,7 +49,7 @@ npm run build
 | `registrationUrl` | Google 表單網址。還沒有就留 `""` |
 | `accentColor` | 可省略。這場要有自己的主題色時再填，例如 `"#D9A441"` |
 
-`registrationUrl` 是空的，按鈕不會出現，畫面上是「報名即將開放」。貼上 `https://` 開頭的表單網址之後，才會變成「報名」按鈕，並在新視窗打開。
+`registrationUrl` 是空的，不會出現報名按鈕，畫面上是「報名即將開放」，旁邊另有一顆 LINE 詢問按鈕（連結寫在 `site.yml` 的 `lineUrl`）。貼上 `https://` 開頭的表單網址之後，才會變成「報名」按鈕，並在新視窗打開。LINE 按鈕仍留在旁邊。
 
 ### 過往活動
 
@@ -78,6 +78,23 @@ npm run build
 4. 刪掉 `published: false` 那一行，改標題、日期、內文和照片路徑。
 5. 存檔並推上 `main`。
 
+## 兩種方式的說明
+
+課程頁和活動頁上方的對照，寫在 [`src/data/offerings.yml`](src/data/offerings.yml)。
+
+香遇是一個人自由調香。每月主題小聚是一群人跟著主題玩香。小聚的費用寫在這個檔的 `price`，也寫在該場活動的 `price`。兩邊都要改，才不會對不上。
+
+## 聯絡方式
+
+改 [`src/data/site.yml`](src/data/site.yml)。
+
+| 欄位 | 填什麼 |
+| --- | --- |
+| `lineUrl` | LINE 按鈕的網址，例如 `https://line.me/R/ti/p/@144eqxql` |
+| `lineId` | 畫面上的帳號，例如 `"@144eqxql"`（要加引號，避免被讀成別的格式） |
+| `xUrl` / `xHandle` | X 的網址與帳號 |
+| `instagram` / `instagramHandle` | Instagram |
+
 ## 改價格或項目
 
 只改 [`src/data/products.csv`](src/data/products.csv)。
@@ -98,7 +115,7 @@ npm run build
 
 只改 [`src/styles/theme.css`](src/styles/theme.css) 最上面的色碼和字體。
 
-目前使用的色票：山茶紅 `#B8272F`、淡水 `#CDEBEF`、紙色 `#F7F1EA`、郵票底 `#F0E4E4`，內文 `#2B3445`。琥珀色 `#C98A3D` 和木色 `#D8B88A` 只做裝飾。單場活動的主題色寫在該場的 `accentColor`，不寫在這個檔案。
+目前使用的色票：頁面淺灰 `#FAFAFA`、卡片暖米 `#F2EEEB`、字與字標 `#545454`。標誌青 `#62A297` 只用在首頁標誌區和頁尾外框，不要拿來當資訊卡的底色。標籤是鼠尾草綠 `#899272`、山茶紅 `#D4082C`、水藍 `#A2EAF1`。單場活動的主題色寫在該場的 `accentColor`，不寫在這個檔案。
 
 ## 上線前 Tina 要自己做的事
 

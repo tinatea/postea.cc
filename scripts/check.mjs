@@ -78,11 +78,30 @@ assert.equal(sheet[0].accentColor, '#D9A441');
 assert.equal(eventsFromCsv('not,a,header\nx,y,z\n').length, 0);
 
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
-for (const hex of ['#B8272F', '#CDEBEF', '#F7F1EA', '#F0E4E4', '#2B3445', '#C98A3D', '#D8B88A']) {
+for (const hex of ['#FAFAFA', '#F2EEEB', '#545454', '#62A297', '#D4082C', '#899272', '#A2EAF1']) {
   assert.ok(theme.includes(hex), `theme.css 缺少 ${hex}`);
 }
 
+const site = yaml.load(fs.readFileSync('src/data/site.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
+assert.equal(site.wordmark, 'POSTÈA');
+assert.equal(site.name, 'Postèa 香語所');
+assert.match(site.lineUrl, /@144eqxql/);
+assert.equal(site.lineId, '@144eqxql');
+assert.match(site.xUrl, /postea_scent/);
+
+const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
+  schema: yaml.JSON_SCHEMA,
+});
+assert.equal(offerings.solo.kind, '一個人自由調香');
+assert.equal(offerings.gathering.kind, '一群人跟著主題玩香');
+assert.equal(offerings.gathering.price, 'NT$800／人');
+const pointText = JSON.stringify(offerings.gathering.points);
+assert.match(pointText, /有主題/);
+assert.match(pointText, /桂花茶室/);
+assert.match(pointText, /桂花烏龍/);
+
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
+assert.ok(fs.existsSync('public/brand/stamp.svg'));
 assert.ok(fs.existsSync('public/brand/logo.png'));
 assert.ok(fs.existsSync('content/recaps/_example.md'));
 

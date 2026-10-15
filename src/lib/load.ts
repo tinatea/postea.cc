@@ -3,7 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv, parseProducts } from './products.mjs';
-import type { Poster, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
+import type { OfferingPoint, Offerings, Poster, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
 
@@ -26,14 +26,17 @@ export function loadSite(): SiteConfig {
   const raw = readYaml('src/data/site.yml');
   const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   return {
-    name: asString(data.name) || 'Postéa 香語所',
-    wordmark: asString(data.wordmark) || 'POSTEA',
+    name: asString(data.name) || 'Postèa 香語所',
+    wordmark: asString(data.wordmark) || 'POSTÈA',
     nameZh: asString(data.nameZh) || '香語所',
     tagline: asString(data.tagline),
     bio: asString(data.bio),
     instagram: asString(data.instagram),
     instagramHandle: asString(data.instagramHandle),
     lineUrl: asString(data.lineUrl),
+    lineId: asString(data.lineId),
+    xUrl: asString(data.xUrl),
+    xHandle: asString(data.xHandle),
     siteUrl: asString(data.siteUrl) || 'https://postea.cc',
     about: asString(data.about),
     eventsSheetUrl: asString(data.eventsSheetUrl),
@@ -146,6 +149,45 @@ export async function loadEvents(): Promise<WorkshopEvent[]> {
     console.warn(`[postea] 讀不到活動試算表，改用 data/events.yml。原因：${error}`);
     return local;
   }
+}
+
+const POINT_TONES = new Set(['sage', 'red', 'aqua']);
+
+export function loadOfferings(): Offerings {
+  const raw = readYaml('src/data/offerings.yml');
+  const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const solo = (data.solo && typeof data.solo === 'object' ? data.solo : {}) as Record<string, unknown>;
+  const gathering = (
+    data.gathering && typeof data.gathering === 'object' ? data.gathering : {}
+  ) as Record<string, unknown>;
+  const points = Array.isArray(gathering.points) ? gathering.points : [];
+  return {
+    solo: {
+      name: asString(solo.name),
+      kind: asString(solo.kind),
+      pill: asString(solo.pill),
+    },
+    gathering: {
+      name: asString(gathering.name),
+      kind: asString(gathering.kind),
+      pill: asString(gathering.pill),
+      price: asString(gathering.price),
+      points: points.flatMap((item) => {
+        if (!item || typeof item !== 'object') return [];
+        const record = item as Record<string, unknown>;
+        const title = asString(record.title);
+        const body = asString(record.body);
+        if (!title || !body) return [];
+        const tone = asString(record.tone);
+        const point: OfferingPoint = {
+          title,
+          body,
+          tone: POINT_TONES.has(tone) ? (tone as OfferingPoint['tone']) : 'sage',
+        };
+        return [point];
+      }),
+    },
+  };
 }
 
 export function loadProducts(): ProductGroup[] {
