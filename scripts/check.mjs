@@ -27,7 +27,9 @@ assert.equal(first.accentColor, '#D9A441');
 assert.equal(first.venue, '台北市｜捷運南京復興站旁（詳細地址報名後通知）');
 assert.equal(first.price, 'NT$800／人');
 assert.equal(first.capacity, '限額 10 人，確定開課');
-assert.match(first.title, /桂花茶室/);
+assert.equal(first.id, 'osmanthus-tea-room-2026-11');
+assert.equal(first.title, '「晚寄的桂花」每月主題調香小聚 #1');
+assert.match(first.description, /秋天的桂花到了尾聲，晚了一點寄給妳。/);
 assert.match(first.description, /Tina 會帶大家一支一支聞香、講解，中場一起喝一壺桂花烏龍，分享彼此調出的茶室。/);
 assert.match(first.takeHome, /10ml/);
 assert.match(first.takeHome, /配方卡/);
@@ -95,7 +97,7 @@ assert.match(parseNewsCsv('日期,標題,內文,連結,圖片連結,顯示\n2026
 
 const news = yaml.load(fs.readFileSync('src/data/news.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
 assert.equal(news[0].date, '2026-10-16');
-assert.equal(news[0].title, '第一場主題小聚「桂花茶室」11/21 登場');
+assert.equal(news[0].title, '第一場主題小聚「晚寄的桂花」11/21 登場');
 assert.match(news[0].link, /postea\.cc\/events/);
 assert.match(news[0].body, /限額 10 人，確定開課/);
 
@@ -168,7 +170,7 @@ for (const file of ['README.md', 'src/pages/experiences.astro', 'src/pages/index
   }
 }
 
-assert.equal(shortEventName(first.title), '桂花茶室');
+assert.equal(shortEventName(first.title), '晚寄的桂花');
 const november = buildMonthGrid(2026, 11);
 assert.equal(november[0], 1);
 assert.equal(november[20], 21);
@@ -194,7 +196,7 @@ assert.match(css, /details\.menu::details-content/);
 const at = (iso) => new Date(iso);
 const session = {
   id: 'osmanthus-tea-room-2026-11',
-  title: '桂花茶室',
+  title: '晚寄的桂花',
   date: '2026-11-21',
   startTime: '14:00',
   endTime: '16:15',
@@ -309,8 +311,8 @@ const selling = eventJsonLd(
 assert.equal(selling.offers.url, 'https://forms.gle/abc');
 assert.equal(selling.offers.price, '800');
 
-const art = themeArt({ id: 'osmanthus-tea-room-2026-11', title: '桂花茶室' });
-assert.equal(art.alt, '桂花茶室 No. 01 主題郵票');
+const art = themeArt({ id: 'osmanthus-tea-room-2026-11', title: '晚寄的桂花' });
+assert.equal(art.alt, '晚寄的桂花 No. 01 主題郵票');
 assert.equal(art.cover.width, 1600);
 assert.equal(art.cover.height, 1000);
 assert.equal(art.simple.width, 160);

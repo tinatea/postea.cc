@@ -1,5 +1,5 @@
 ---
-title: 桂花茶室小聚紀錄（範例，不會出現在網站上）
+title: 晚寄的桂花小聚紀錄（範例，不會出現在網站上）
 date: "2026-11-21"
 excerpt: 一句話描述這場。這個檔名以底線開頭，網站不會刊登。
 cover: /images/placeholders/studio-rack.jpg
