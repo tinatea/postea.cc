@@ -1,12 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import EventCard from '../components/EventCard.astro';
+import NewsList from '../components/NewsList.astro';
 import { splitEvents, taipeiToday } from '../lib/classify.mjs';
-import { loadEvents, loadSite } from '../lib/load';
+import { loadEvents, loadNews, loadSite } from '../lib/load';
 
 const site = loadSite();
 const { upcoming } = splitEvents(await loadEvents(), taipeiToday());
 const next = upcoming[0];
+const news = (await loadNews()).slice(0, 3);
 const comma = site.tagline.indexOf('，');
 const titleLead = comma === -1 ? site.tagline : site.tagline.slice(0, comma);
 const titleRest = comma === -1 ? '' : site.tagline.slice(comma + 1);
@@ -47,12 +49,24 @@ const titleRest = comma === -1 ? '' : site.tagline.slice(comma + 1);
     }
   </section>
 
+  {
+    news.length > 0 && (
+      <section class="wrap" id="news">
+        <div class="section-head section-head-row">
+          <h2>最新消息</h2>
+          <a href="/news">看全部</a>
+        </div>
+        <NewsList items={news} />
+      </section>
+    )
+  }
+
   <section class="wrap">
     <h2 class="sr-only">其他頁面</h2>
     <div class="paths">
       <a class="path" href="/experiences">
         <strong>課程與體驗</strong>
-        <span>一個人的香遇，或看看已經調好的香。</span>
+        <span>調香探索與體驗，或每月主題調香。</span>
       </a>
       <a class="path" href="/events">
         <strong>月曆</strong>

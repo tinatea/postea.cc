@@ -1,0 +1,41 @@
+---
+import Icon from './Icon.astro';
+import { formatEventDate } from '../lib/classify.mjs';
+import type { NewsItem } from '../lib/types';
+
+interface Props {
+  items: NewsItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="news-list">
+  {
+    items.map((item) => {
+      const [, month, day] = item.date.split('-');
+      return (
+        <article class="stamp news-card">
+          <div class="news-layout">
+            <p class="news-date" aria-hidden="true">
+              <span class="date-stamp-mon">{Number(month)}月</span>
+              <span class="date-stamp-day">{Number(day)}</span>
+            </p>
+            <div>
+              <h2 class="news-title">{item.title}</h2>
+              <p class="news-when">{formatEventDate(item.date)}</p>
+              {item.body && <p class="news-body">{item.body}</p>}
+              {item.image && <img class="news-image" src={item.image} alt="" />}
+              {item.link && (
+                <a class="news-link" href={item.link}>
+                  查看
+                  <Icon name="caret-right" />
+                </a>
+              )}
+            </div>
+          </div>
+        </article>
+      );
+    })
+  }
+</div>

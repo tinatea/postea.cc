@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import yaml from 'js-yaml';
 import { splitEvents, formatEventDate } from '../src/lib/classify.mjs';
 import { buildMonthGrid, defaultMonth, shortEventName } from '../src/lib/calendar.mjs';
-import { parseProducts } from '../src/lib/products.mjs';
-import { eventsFromCsv } from '../src/lib/load.ts';
+import { eventsFromCsv, loadOfferings, parseEventsCsv, parseNewsCsv } from '../src/lib/load.ts';
 
 const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -52,23 +51,8 @@ const moved = splitEvents([{ date: '2026-11-21', startTime: '14:00', title: 'osm
 assert.equal(moved.past[0].title, 'osmanthus');
 assert.equal(moved.upcoming.length, 0);
 
-const groups = parseProducts(fs.readFileSync('src/data/products.csv', 'utf8'));
-const items = groups.flatMap((group) => group.items);
-assert.equal(items.length, 7);
-assert.equal(groups[0].heading, '體驗項目');
-assert.equal(groups[0].items[0].name, '香氛體驗  - 香遇淡香水');
-assert.equal(groups[0].items[0].price, '$1500');
-assert.match(groups[0].items[0].description, /15ml/);
-assert.match(groups[0].items[0].duration, /10 ~ 20 分鐘/);
-assert.match(groups[0].items[1].duration, /1 小時/);
-assert.equal(groups[1].heading, '商品');
-assert.equal(groups[1].items[0].name, '香語空間噴霧');
-assert.equal(groups[1].items[1].name, '香語繩保養油');
-assert.equal(groups[1].items[1].price, '$800');
-assert.equal(groups[1].items[2].name, '推廣噴霧');
-assert.equal(groups[1].items[2].price, '400');
-assert.equal(groups[1].items[2].description, '');
-assert.equal(groups[1].items[2].duration, null);
+assert.equal(fs.existsSync('src/data/products.csv'), false);
+assert.equal(fs.existsSync('src/components/Offerings.astro'), false);
 
 const sheet = eventsFromCsv(
   '標題,日期,開始時間,結束時間,地點,價格,人數,說明,帶走,報名連結,主題色\n測試場,2026-12-01,14:00,16:00,台北,NT$800／人,4–10 人,說明,一瓶,,#D9A441\n',
@@ -78,6 +62,33 @@ assert.equal(sheet[0].title, '測試場');
 assert.equal(sheet[0].registrationUrl, '');
 assert.equal(sheet[0].accentColor, '#D9A441');
 assert.equal(eventsFromCsv('not,a,header\nx,y,z\n').length, 0);
+
+const sheetLiveShape = parseEventsCsv(
+  '"活動代號","活動名稱","日期","開始時間","結束時間","地點","費用","人數","帶走的東西","報名連結","主題色","活動介紹","備註"\n"id-1","測試場","2026-12-01","14:00","16:00","台北","NT$800／人","4–10 人","","","#D9A441","第一段\n\n第二段","忽略"\n',
+);
+assert.equal(sheetLiveShape.error, null);
+assert.equal(sheetLiveShape.events[0].id, 'id-1');
+assert.equal(sheetLiveShape.events[0].takeHome, '');
+assert.match(sheetLiveShape.events[0].description, /第一段\n\n第二段/);
+const badAccent = parseEventsCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n');
+assert.match(badAccent.error, /主題色/);
+assert.equal(eventsFromCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n').length, 0);
+
+const newsSheet = parseNewsCsv(
+  '日期,標題,內文,連結,圖片連結,顯示,備註\n2026-10-16,較舊,內文,,,"是",忽略\n2026-10-01,隱藏,內文,,,"否",\n2026-10-20,較新,內文,https://postea.cc/events/,,是,\n',
+);
+assert.equal(newsSheet.error, null);
+assert.deepEqual(
+  newsSheet.items.map((item) => item.title),
+  ['較新', '較舊'],
+);
+assert.equal(newsSheet.items[0].link, 'https://postea.cc/events/');
+assert.match(parseNewsCsv('日期,標題,內文,連結,圖片連結,顯示\n2026-10-16,標題,內文,,,也許\n').error, /顯示/);
+
+const news = yaml.load(fs.readFileSync('src/data/news.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
+assert.equal(news[0].date, '2026-10-16');
+assert.equal(news[0].title, '第一場主題小聚「桂花茶室」11/21 登場');
+assert.match(news[0].link, /postea\.cc\/events/);
 
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
 for (const hex of ['#FAFAFA', '#F2EEEB', '#545454', '#62A297', '#D4082C', '#899272', '#A2EAF1']) {
@@ -98,17 +109,52 @@ assert.equal(site.name, 'Postèa 香語所');
 assert.match(site.lineUrl, /@144eqxql/);
 assert.equal(site.lineId, '@144eqxql');
 assert.match(site.xUrl, /postea_scent/);
+assert.equal(site.sheetId, '1VIyh9mh76vbfhPye9M4UE1KYYs0ORjj-hxTGaeFwiGg');
 
 const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
 });
-assert.equal(offerings.solo.kind, '一個人自由調香');
-assert.equal(offerings.gathering.kind, '一群人跟著主題玩香');
-assert.equal(offerings.gathering.price, 'NT$800／人');
-const pointText = JSON.stringify(offerings.gathering.points);
-assert.match(pointText, /有主題/);
-assert.match(pointText, /桂花茶室/);
-assert.match(pointText, /桂花烏龍/);
+assert.equal(offerings.explore.title, '調香探索與體驗');
+assert.equal(offerings.explore.subtitle, '為你一個人調的香');
+assert.match(offerings.explore.body, /或一瓶 50ml 空間噴霧/);
+assert.deepEqual(
+  offerings.explore.prices.map((price) => price.label),
+  ['一對一', '兩人同行', '三至四人同行'],
+);
+assert.deepEqual(
+  offerings.explore.prices.map((price) => price.amount),
+  ['2,000', '1,800', '1,600'],
+);
+assert.equal(offerings.explore.duration, '約 1.5 至 2 小時');
+assert.equal(offerings.explore.sprayVolume, '50ml');
+assert.equal(offerings.explore.cta, '用 LINE 預約');
+assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
+assert.equal(offerings.gathering.title, '每月主題調香');
+assert.equal(offerings.gathering.prices[0].label, '每人');
+assert.equal(offerings.gathering.prices[0].amount, '800');
+assert.equal(offerings.gathering.takeHome, '10ml 主題香水');
+assert.equal(offerings.gathering.cta, '看本月主題');
+assert.equal(offerings.gathering.href, '/events');
+assert.equal(offerings.choose.title, '怎麼選？');
+assert.match(offerings.choose.paragraphs[0], /選每月主題調香。/);
+assert.match(offerings.choose.paragraphs[1], /選調香探索與體驗。/);
+assert.equal(JSON.stringify(offerings).includes('待補'), false);
+assert.equal(JSON.stringify(offerings).includes('＿'), false);
+const loadedOfferings = loadOfferings();
+assert.equal(loadedOfferings.explore.takeHome, '30ml 淡香水或 50ml 空間噴霧（二選一）');
+assert.equal(loadedOfferings.explore.duration, '約 1.5 至 2 小時');
+assert.equal(loadedOfferings.gathering.takeHome, '10ml 主題香水');
+assert.equal(loadedOfferings.explore.takeHome.includes('＿'), false);
+assert.equal(loadedOfferings.explore.prices.length, 3);
+const experiences = fs.readFileSync('src/pages/experiences.astro', 'utf8');
+assert.match(experiences, /用 LINE 預約|explore\.cta/);
+assert.match(experiences, /calendar-blank/);
+for (const file of ['README.md', 'src/pages/experiences.astro', 'src/pages/index.astro', 'docs/維護說明.md']) {
+  const text = fs.readFileSync(file, 'utf8');
+  for (const retired of ['$1500', '$2500', '香遇淡香水', '香信', '香遇空間噴霧', '保養油', '＿＿']) {
+    assert.equal(text.includes(retired), false, `${file} 仍有舊價目：${retired}`);
+  }
+}
 
 assert.equal(shortEventName(first.title), '桂花茶室');
 const november = buildMonthGrid(2026, 11);
@@ -123,6 +169,15 @@ assert.equal(header.includes('文宣'), false);
 assert.match(header, /aria-label="選單"/);
 assert.match(header, /name="list"/);
 assert.match(header, /calendar-blank/);
+assert.match(header, /newspaper/);
+assert.match(header, /最新消息/);
+assert.ok(fs.existsSync('src/pages/news/index.astro'));
+const workflow = fs.readFileSync('.github/workflows/pages.yml', 'utf8');
+assert.match(workflow, /cron: '7 22 \* \* \*'/);
+assert.equal(workflow.includes("cron: '30 16 * * *'"), false);
+assert.match(workflow, /workflow_dispatch/);
+const css = fs.readFileSync('src/styles/global.css', 'utf8');
+assert.match(css, /details\.menu::details-content/);
 
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
 assert.ok(fs.existsSync('public/brand/stamp.svg'));

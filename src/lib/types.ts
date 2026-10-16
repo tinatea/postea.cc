@@ -27,40 +27,42 @@ export type SiteConfig = {
   xHandle: string;
   siteUrl: string;
   about: string;
-  eventsSheetUrl: string;
+  sheetId: string;
 };
 
-export type OfferingPoint = {
+export type NewsItem = {
+  date: string;
   title: string;
   body: string;
-  tone: 'sage' | 'red' | 'aqua';
+  link: string;
+  image: string;
+};
+
+export type CoursePrice = {
+  label: string;
+  amount: string;
+  each: string;
+};
+
+export type CourseOffering = {
+  title: string;
+  subtitle: string;
+  body: string;
+  prices: CoursePrice[];
+  tags: string[];
+  duration: string;
+  takeHome: string;
+  cta: string;
+  href: string;
 };
 
 export type Offerings = {
-  solo: {
-    name: string;
-    kind: string;
-    pill: string;
+  explore: CourseOffering;
+  gathering: CourseOffering;
+  choose: {
+    title: string;
+    paragraphs: string[];
   };
-  gathering: {
-    name: string;
-    kind: string;
-    pill: string;
-    price: string;
-    points: OfferingPoint[];
-  };
-};
-
-export type ProductItem = {
-  name: string;
-  description: string;
-  price: string;
-  duration: string | null;
-};
-
-export type ProductGroup = {
-  heading: string;
-  items: ProductItem[];
 };
 
 export type RecapPhoto = {

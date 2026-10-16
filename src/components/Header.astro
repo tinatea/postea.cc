@@ -9,9 +9,10 @@ interface Props {
 
 const { wordmark, nameZh, current } = Astro.props;
 
-const items: { href: string; label: string; icon?: 'calendar-blank' }[] = [
+const items: { href: string; label: string; icon?: 'calendar-blank' | 'newspaper' }[] = [
   { href: '/', label: '首頁' },
   { href: '/events', label: '月曆', icon: 'calendar-blank' },
+  { href: '/news', label: '最新消息', icon: 'newspaper' },
   { href: '/experiences', label: '課程與體驗' },
   { href: '/recaps', label: '活動紀錄' },
   { href: '/about', label: '關於' },

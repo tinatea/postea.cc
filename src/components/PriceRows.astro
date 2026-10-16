@@ -1,0 +1,26 @@
+---
+import type { CourseOffering } from '../lib/types';
+
+interface Props {
+  course: CourseOffering;
+}
+
+const { course } = Astro.props;
+---
+
+{
+  course.prices.length > 0 && (
+    <div class="price-rows">
+      {course.prices.map((price) => (
+        <div class="price-row">
+          <span>{price.label}</span>
+          <strong>
+            {price.each && <small>{price.each}</small>}
+            <small>NT$</small>
+            {price.amount}
+          </strong>
+        </div>
+      ))}
+    </div>
+  )
+}

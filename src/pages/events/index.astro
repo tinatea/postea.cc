@@ -1,7 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CalendarMonth from '../../components/CalendarMonth.astro';
-import Offerings from '../../components/Offerings.astro';
 import { defaultMonth, parseMonth } from '../../lib/calendar.mjs';
 import { taipeiToday } from '../../lib/classify.mjs';
 import { loadEvents } from '../../lib/load';
@@ -22,11 +21,10 @@ const month = parsed?.month ?? Number(today.slice(5, 7));
       <p class="kicker">月曆</p>
       <h1>月曆</h1>
       <p class="lede">
-        這裡的場次是每月主題小聚：一群人跟著主題玩香。想一個人自由調香，看課程與體驗的香遇。
+        這裡是每月主題調香的月曆。想一個人調，看<a href="/experiences">調香探索與體驗</a>。
       </p>
     </header>
 
     <CalendarMonth events={events} today={today} year={year} month={month} />
-    <Offerings />
   </div>
 </Base>
