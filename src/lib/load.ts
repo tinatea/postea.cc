@@ -68,6 +68,7 @@ export function normalizeEvent(raw: Record<string, unknown>, index: number): Wor
     signupOpen: asString(raw.signupOpen),
     signupClose: asString(raw.signupClose),
     signupMethod: asString(raw.signupMethod),
+    coverImage: asString(raw.coverImage),
   };
 }
 
@@ -128,6 +129,8 @@ const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   報名截止時間: 'signupClose',
   signupmethod: 'signupMethod',
   報名方式: 'signupMethod',
+  coverimage: 'coverImage',
+  封面圖: 'coverImage',
 };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

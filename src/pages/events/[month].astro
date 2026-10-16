@@ -6,6 +6,7 @@ import { monthsToBuild, parseMonth } from '../../lib/calendar.mjs';
 import { taipeiToday } from '../../lib/classify.mjs';
 import { loadEvents, loadSite } from '../../lib/load';
 import { eventJsonLd, eventSummary } from '../../lib/signup.mjs';
+import { themeArt } from '../../lib/theme-art.mjs';
 import type { WorkshopEvent } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -47,15 +48,28 @@ if (!event && !parsed) throw new Error(`無法讀取：${Astro.params.month}`);
 const year = parsed?.year ?? 0;
 const month = parsed?.month ?? 0;
 const site = loadSite();
+const art = event ? themeArt(event) : null;
 const description = event
   ? eventSummary(event)
   : `Postèa 香語所 ${year}年${month}月的活動。看日期、地點、費用與報名。`;
 const jsonLdExtra = event ? eventJsonLd(event, site) : undefined;
+if (jsonLdExtra && art) {
+  const picture = art.custom || art.cover?.src;
+  if (picture) jsonLdExtra.image = new URL(picture, site.siteUrl).href;
+}
 ---
 
 {
   event ? (
-    <Base title={event.title} description={description} jsonLdExtra={jsonLdExtra}>
+    <Base
+      title={event.title}
+      description={description}
+      jsonLdExtra={jsonLdExtra}
+      image={art?.share}
+      imageAlt={art?.alt}
+      imageWidth={art?.shareWidth}
+      imageHeight={art?.shareHeight}
+    >
       <div class="wrap">
         <EventDetail event={event} />
       </div>

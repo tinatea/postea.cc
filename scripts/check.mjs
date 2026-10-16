@@ -11,6 +11,7 @@ import {
   publishedOnly,
   resolveSignup,
 } from '../src/lib/signup.mjs';
+import { themeArt } from '../src/lib/theme-art.mjs';
 
 const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -305,6 +306,32 @@ const selling = eventJsonLd(
 );
 assert.equal(selling.offers.url, 'https://forms.gle/abc');
 assert.equal(selling.offers.price, '800');
+
+const art = themeArt({ id: 'osmanthus-tea-room-2026-11', title: '桂花茶室' });
+assert.equal(art.alt, '桂花茶室 No. 01 主題郵票');
+assert.equal(art.cover.width, 1600);
+assert.equal(art.cover.height, 1000);
+assert.equal(art.simple.width, 160);
+assert.equal(art.shareWidth, 1200);
+assert.equal(art.shareHeight, 630);
+for (const file of [
+  art.cover.src,
+  art.share,
+  art.simple.src,
+  ...art.cover.webp.map(([src]) => src),
+  ...art.cover.png.map(([src]) => src),
+  ...art.simple.webp.map(([src]) => src),
+  ...art.simple.png.map(([src]) => src),
+]) {
+  assert.ok(fs.existsSync(`public${file}`), `缺少主題圖 ${file}`);
+}
+const coverSheet = parseEventsCsv('活動名稱,日期,封面圖\n測試場,2026-12-01,https://postea.cc/cover.png\n');
+assert.equal(coverSheet.error, null);
+assert.equal(coverSheet.events[0].coverImage, 'https://postea.cc/cover.png');
+assert.equal(themeArt(coverSheet.events[0]).custom, 'https://postea.cc/cover.png');
+const badCover = parseEventsCsv('活動名稱,日期,封面圖\n測試場,2026-12-01,不是網址\n');
+assert.equal(badCover.error, null);
+assert.equal(themeArt({ id: 'osmanthus-tea-room-2026-11', coverImage: '不是網址' }).share.endsWith('share.png'), true);
 
 const bannedPhrases = [`滿 ${4} 人`, `4–${10} 人`, `4-${10} 人`, `未滿 ${4} 人`];
 function collectText(dir, acc = []) {

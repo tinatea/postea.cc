@@ -2,7 +2,9 @@
 import Icon from './Icon.astro';
 import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
+import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
+import { themeArt } from '../lib/theme-art.mjs';
 import {
   buildMonthGrid,
   eventsInMonth,
@@ -154,13 +156,20 @@ const pillInk = '#1A1A1A';
       monthEvents.map((event) => {
         const time = formatTimeRange(event.startTime, event.endTime);
         const signup = resolveSignup(event);
+        const art = themeArt(event);
         const [, monthNumber, dayNumber] = event.date.split('-');
         return (
           <article class="month-item" id={event.id}>
-            <div class="stamp date-stamp" aria-hidden="true">
-              <span class="date-stamp-mon">{Number(monthNumber)}月</span>
-              <span class="date-stamp-day">{Number(dayNumber)}</span>
-            </div>
+            {
+              art?.simple || art?.custom ? (
+                <EventArt event={event} kind="stamp" />
+              ) : (
+                <div class="stamp date-stamp" aria-hidden="true">
+                  <span class="date-stamp-mon">{Number(monthNumber)}月</span>
+                  <span class="date-stamp-day">{Number(dayNumber)}</span>
+                </div>
+              )
+            }
             <div>
               <h3 class="month-item-title">
                 <a href={`/events/${event.id}/`}>{event.title}</a>

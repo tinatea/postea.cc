@@ -478,6 +478,30 @@ main {
   margin-bottom: 1.15rem;
 }
 
+.event-cover {
+  display: block;
+  margin: 0 0 0.95rem;
+}
+
+.event-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.35rem;
+}
+
+/* 月曆列上的郵票不到 160px 寬，用簡化檔，不放封面。 */
+.event-stamp {
+  display: block;
+  width: 4.5rem;
+}
+
+.event-stamp img {
+  width: 4.5rem;
+  height: auto;
+  display: block;
+}
+
 .event-accent {
   display: block;
   width: 4.25rem;

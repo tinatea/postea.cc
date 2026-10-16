@@ -11,6 +11,7 @@ export type WorkshopEvent = {
   takeHome: string;
   registrationUrl: string;
   accentColor?: string;
+  coverImage?: string;
   publishStatus?: string;
   signupStatus?: string;
   signupOpen?: string;

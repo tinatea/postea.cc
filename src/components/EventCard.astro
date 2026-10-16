@@ -1,4 +1,5 @@
 ---
+import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
 import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
@@ -27,6 +28,7 @@ const facts = [
   id={event.id}
   style={event.accentColor ? `--event-accent: ${event.accentColor}` : undefined}
 >
+  <EventArt event={event} priority={featured} />
   <span class="event-accent" aria-hidden="true"></span>
   <h2 class="event-title">
     <a href={`/events/${event.id}/`}>{event.title}</a>
