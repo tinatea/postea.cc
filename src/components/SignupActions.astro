@@ -40,14 +40,14 @@ const showOthersLink = signup.status === '報名截止' || signup.status === '�
   }
   {
     showOthersButton && (
-      <a class:list={['button', large]} href="/events">
+      <a class:list={['button', 'button-secondary', large]} href="/events">
         查看其他場次
       </a>
     )
   }
   {
     showRecent && (
-      <a class:list={['button', large]} href="/events">
+      <a class:list={['button', 'button-secondary', large]} href="/events">
         查看近期活動
       </a>
     )

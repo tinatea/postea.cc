@@ -25,7 +25,7 @@ img {
 }
 
 a {
-  color: inherit;
+  color: var(--color-teal-deep);
 }
 
 h1,
@@ -84,8 +84,8 @@ p {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-camellia);
-  outline-offset: 3px;
+  outline: none;
+  box-shadow: var(--focus);
 }
 
 .wrap {
@@ -168,14 +168,14 @@ p {
   border: 1px solid color-mix(in srgb, var(--color-ink) 28%, transparent);
   border-radius: 999px;
   background: transparent;
-  color: #545454;
+  color: var(--color-ink);
 }
 
 .ph {
   width: 1.35rem;
   height: 1.35rem;
   display: block;
-  color: #545454;
+  color: var(--color-ink);
 }
 
 .menu-button .icon-close,
@@ -212,7 +212,7 @@ p {
 }
 
 .menu nav a[aria-current='page'] {
-  color: var(--color-camellia);
+  color: var(--color-teal-deep);
 }
 
 @media (max-width: 959px) {
@@ -272,7 +272,8 @@ p {
   }
 
   .menu nav a[aria-current='page'] {
-    box-shadow: inset 0 -1px 0 var(--color-camellia);
+    color: var(--color-teal-deep);
+    box-shadow: inset 0 -1px 0 var(--color-teal-deep);
   }
 
   .brand img {
@@ -398,17 +399,31 @@ main {
 }
 
 .button:hover {
-  background: color-mix(in srgb, var(--color-camellia) 86%, black);
+  background: var(--color-camellia-hover);
+  border-color: var(--color-camellia-hover);
+}
+
+.button-secondary {
+  background: var(--color-teal-deep);
+  color: #ffffff;
+  border-color: var(--color-teal-deep);
+}
+
+.button-secondary:hover {
+  background: color-mix(in srgb, var(--color-teal-deep) 86%, black);
+  border-color: color-mix(in srgb, var(--color-teal-deep) 86%, black);
 }
 
 .button-ghost {
   background: transparent;
-  color: var(--color-ink);
-  border: 1px solid color-mix(in srgb, var(--color-ink) 40%, transparent);
+  color: var(--color-teal-deep);
+  border: 1px solid var(--color-teal-deep);
 }
 
 .button-ghost:hover {
-  border-color: var(--color-ink);
+  background: var(--color-teal-deep);
+  color: #ffffff;
+  border-color: var(--color-teal-deep);
 }
 
 .pending {
@@ -508,7 +523,7 @@ main {
   height: 0.4rem;
   margin: 0 0 0.85rem;
   border-radius: 999px;
-  background: var(--event-accent, var(--color-stamen));
+  background: var(--event-accent, var(--theme));
 }
 
 .event-title {
@@ -646,19 +661,29 @@ main {
   line-height: 1.45;
 }
 
+.brand,
+.path,
+.cal-day,
+.event-title a,
+.month-item-title a,
+.news-title a,
+.menu nav a {
+  color: var(--color-ink);
+}
+
 .course-pill-sage {
-  background: #899272;
+  background: var(--sage);
   color: var(--color-on-sage);
 }
 
 .course-pill-flower {
-  background: #af3332;
+  background: var(--red);
   color: #ffffff;
 }
 
 .course-pill-gold {
-  background: #d9a441;
-  color: #1a1a1a;
+  background: var(--theme);
+  color: var(--theme-ink);
   letter-spacing: 0.04em;
   font-size: 0.92rem;
 }
@@ -671,7 +696,7 @@ main {
 
 .price-desc {
   margin: 0.35rem 0 0;
-  color: #5e5a57;
+  color: var(--color-ink-soft);
   line-height: 1.65;
 }
 
@@ -795,7 +820,7 @@ main {
 }
 
 .prose a {
-  color: var(--color-camellia);
+  color: var(--color-teal-deep);
 }
 
 .about-copy p:last-child {
@@ -809,7 +834,7 @@ main {
 }
 
 .contact-list a {
-  color: var(--color-camellia);
+  color: var(--color-teal-deep);
 }
 
 .contact-actions {
@@ -920,7 +945,7 @@ main {
   height: 2.75rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--color-ink) 28%, transparent);
-  color: #545454;
+  color: var(--color-ink);
   text-decoration: none;
 }
 
@@ -975,7 +1000,7 @@ main {
 }
 
 .is-today .cal-num {
-  box-shadow: inset 0 0 0 1.5px #62A297;
+  box-shadow: inset 0 0 0 1.5px var(--color-teal);
   border-radius: 999px;
 }
 

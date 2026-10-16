@@ -1,30 +1,54 @@
 /*
   Postèa 香語所 — 全站色彩與字體只放這個檔案。
-  官方色票若有更新，改下面的色碼即可，不用動其他頁面。
+  色碼來自 Patch 的 tokens（2026-10-16）。字體維持霞鶩文楷，不跟 tokens 裡的字級。
 
-  青色 #62A297 是標誌的主色，只用在首頁標誌區、頁尾外框，或小點綴。
-  資訊卡的底色是暖米色 #F2EEEB，頁面底是淺灰 #FAFAFA。不要把卡片改成青色。
+  標誌青 #62A297 只用在大面積裝飾（首頁標誌區、頁尾外框）。不要在這塊青色上放白色小字。
+  次要按鈕、連結、選取與焦點框用深青 #3A7268。主要報名按鈕用山茶紅 #AF3332，白字。
+  資訊卡的底色是暖米色 #F2EEEB，頁面底是淺灰 #FAFAFA。
 
-  單場活動可以有自己的主題色（例如 11 月「桂花茶室」的桂花金 #D9A441）。
-  那個顏色寫在 data/events.yml 的 accentColor，不要加進這裡。
-
-  鼠尾草綠標籤上的字用近黑 #1A1A1A：白色在 #899272 上對比不夠。
+  每月主題色用 --theme。11 月桂花茶室是 #D9A441，上面的字用 --theme-ink。
+  單場若有自己的主題色，寫在該場的 accentColor，會蓋過 --theme。
 */
 
 :root {
   --color-page: #FAFAFA;
   --color-card: #F2EEEB;
-  --color-ink: #545454;
+  --color-line: #D9D4CF;
+  --color-ink: #454545;
+  --color-ink-soft: #666666;
   --color-teal: #62A297;
-  --color-camellia: #D4082C;
+  --color-teal-deep: #3A7268;
+  --color-camellia: #AF3332;
+  --color-camellia-hover: #922828;
+  --color-on-camellia: #ffffff;
   --color-flower: #AF3332;
-  --color-sage: #899272;
-  --color-on-sage: #1A1A1A;
-  --color-aqua: #A2EAF1;
+  --color-sage: #66704F;
+  --color-on-sage: #ffffff;
+  --color-aqua: #99DFEB;
   --color-rain: #99DFEB;
   --color-stamen: #F1D551;
   --color-leaf: #2C663B;
-  --color-on-camellia: #ffffff;
+  --color-theme: #D9A441;
+  --color-theme-ink: #3A2C10;
+  --color-theme-text: #8A6418;
+
+  --bg: var(--color-page);
+  --paper: var(--color-card);
+  --line: var(--color-line);
+  --ink: var(--color-ink);
+  --ink-soft: var(--color-ink-soft);
+  --teal: var(--color-teal);
+  --teal-deep: var(--color-teal-deep);
+  --red: var(--color-camellia);
+  --red-hover: var(--color-camellia-hover);
+  --sky: var(--color-aqua);
+  --yellow: var(--color-stamen);
+  --leaf: var(--color-leaf);
+  --sage: var(--color-sage);
+  --theme: var(--color-theme);
+  --theme-ink: var(--color-theme-ink);
+  --theme-text: var(--color-theme-text);
+  --focus: 0 0 0 3px #FAFAFA, 0 0 0 6px var(--teal-deep);
 
   --font-word: "Outfit", "Avenir Next", "Trebuchet MS", sans-serif;
   --font-script: "Caveat", "Segoe Script", cursive;

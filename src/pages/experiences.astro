@@ -56,7 +56,7 @@ const exploreTags = [explore.duration, explore.takeHome].filter(Boolean);
         {
           explore.cta && explore.href && (
             <a
-              class="button price-cta"
+              class="button button-secondary price-cta"
               href={explore.href}
               target={external(explore.href) ? '_blank' : undefined}
               rel={external(explore.href) ? 'noopener noreferrer' : undefined}
@@ -94,7 +94,7 @@ const exploreTags = [explore.duration, explore.takeHome].filter(Boolean);
         }
         {
           gathering.cta && gathering.href && (
-            <a class="button price-cta" href={gathering.href}>
+            <a class="button button-secondary price-cta" href={gathering.href}>
               <Icon name="calendar-blank" />
               {gathering.cta}
             </a>

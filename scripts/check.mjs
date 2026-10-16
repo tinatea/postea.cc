@@ -100,9 +100,11 @@ assert.match(news[0].link, /postea\.cc\/events/);
 assert.match(news[0].body, /限額 10 人，確定開課/);
 
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
-for (const hex of ['#FAFAFA', '#F2EEEB', '#545454', '#62A297', '#D4082C', '#899272', '#A2EAF1']) {
+for (const hex of ['#FAFAFA', '#F2EEEB', '#454545', '#62A297', '#3A7268', '#AF3332', '#66704F', '#D9A441', '#3A2C10']) {
   assert.ok(theme.includes(hex), `theme.css 缺少 ${hex}`);
 }
+assert.equal(theme.includes('#D4082C'), false);
+assert.equal(theme.includes('#545454'), false);
 assert.match(theme, /LXGW WenKai TC/);
 assert.equal(theme.includes('Noto'), false);
 assert.equal(theme.includes('ZCOOL'), false);

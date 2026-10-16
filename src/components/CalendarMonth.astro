@@ -43,7 +43,8 @@ const next = shiftMonth(year, month, 1);
 const builtMonths = new Set(monthsToBuild(events, today));
 const prevKey = monthKey(prev.year, prev.month);
 const nextKey = monthKey(next.year, next.month);
-const pillInk = '#1A1A1A';
+const pillOnTheme = 'var(--theme-ink)';
+const pillOnSage = '#ffffff';
 ---
 
 <section class="stamp calendar-card" aria-label={`${year}年${month}月`}>
@@ -98,7 +99,7 @@ const pillInk = '#1A1A1A';
                       <span class="cal-mark">
                         <span
                           class="cal-pill"
-                          style={`background:${dayEvents[0].accentColor || 'var(--color-sage)'};color:${pillInk}`}
+                          style={`background:${dayEvents[0].accentColor || 'var(--color-sage)'};color:${dayEvents[0].accentColor ? pillOnTheme : pillOnSage}`}
                         >
                           {shortEventName(dayEvents[0].title)}
                         </span>
@@ -121,7 +122,7 @@ const pillInk = '#1A1A1A';
                         <a class="cal-mark" href={`/events/${event.id}/`}>
                           <span
                             class="cal-pill"
-                            style={`background:${event.accentColor || 'var(--color-sage)'};color:${pillInk}`}
+                            style={`background:${event.accentColor || 'var(--color-sage)'};color:${event.accentColor ? pillOnTheme : pillOnSage}`}
                           >
                             {shortEventName(event.title)}
                           </span>
