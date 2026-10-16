@@ -496,19 +496,12 @@ main {
   margin: 0.15rem 0 0.9rem;
 }
 
-.postcard {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.15rem 0.85rem;
-  margin: 0 0 0.35rem;
-  font-family: var(--font-script);
-  font-size: 1.45rem;
-  line-height: 1.15;
+.event-featured .event-accent {
+  margin-bottom: 0.7rem;
 }
 
-.postcard .script {
-  margin: 0;
+.event-featured .event-title {
+  margin-top: 0;
 }
 
 .meta {

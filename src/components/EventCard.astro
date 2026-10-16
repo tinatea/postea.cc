@@ -13,7 +13,6 @@ const { event, featured = false, past = false } = Astro.props;
 const site = loadSite();
 const when = formatEventDate(event.date);
 const time = formatTimeRange(event.startTime, event.endTime);
-const dateDots = event.date.replaceAll('-', '.');
 const facts = [
   ['日期', when],
   ['時間', time],
@@ -29,17 +28,6 @@ const facts = [
   style={event.accentColor ? `--event-accent: ${event.accentColor}` : undefined}
 >
   <span class="event-accent" aria-hidden="true"></span>
-  {
-    featured && (
-      <p class="postcard">
-        <span class="script">TO</span>
-        <span>Special You</span>
-        <span class="script">DATE</span>
-        <span>{dateDots}</span>
-      </p>
-    )
-  }
-  {featured && <p class="kicker">下一場</p>}
   <h2 class="event-title">{event.title}</h2>
   <dl class="meta">
     {
