@@ -11,6 +11,11 @@ export type WorkshopEvent = {
   takeHome: string;
   registrationUrl: string;
   accentColor?: string;
+  publishStatus?: string;
+  signupStatus?: string;
+  signupOpen?: string;
+  signupClose?: string;
+  signupMethod?: string;
 };
 
 export type SiteConfig = {

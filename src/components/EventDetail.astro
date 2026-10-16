@@ -1,0 +1,61 @@
+---
+import SignupActions from './SignupActions.astro';
+import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { resolveSignup } from '../lib/signup.mjs';
+import type { WorkshopEvent } from '../lib/types';
+
+interface Props {
+  event: WorkshopEvent;
+}
+
+const { event } = Astro.props;
+const signup = resolveSignup(event);
+const when = formatEventDate(event.date);
+const time = formatTimeRange(event.startTime, event.endTime);
+const facts = [
+  ['日期', when],
+  ['時間', time],
+  ['地點', event.venue],
+  ['費用', event.price],
+].filter(([, value]) => value);
+---
+
+<article
+  class="stamp event event-detail"
+  style={event.accentColor ? `--event-accent: ${event.accentColor}` : undefined}
+>
+  <span class="event-accent" aria-hidden="true"></span>
+  <h1 class="event-title">{event.title}</h1>
+  <p class="signup-status" role="status">{signup.status}</p>
+  <dl class="meta">
+    {
+      facts.map(([label, value]) => (
+        <div>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <SignupActions event={event} featured showCalendarLink />
+  {event.description && <p class="event-copy">{event.description}</p>}
+  {
+    event.takeHome && (
+      <p class="takehome">
+        <span>帶走</span>
+        {event.takeHome}
+      </p>
+    )
+  }
+  {
+    event.capacity && (
+      <p class="takehome">
+        <span>人數</span>
+        {event.capacity}
+      </p>
+    )
+  }
+</article>
+<p class="detail-back">
+  <a class="text-link" href={`/events/${event.date.slice(0, 7)}#${event.id}`}>回到這個月的月曆</a>
+</p>

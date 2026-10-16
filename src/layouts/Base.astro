@@ -9,9 +9,10 @@ interface Props {
   title: string;
   description: string;
   home?: boolean;
+  jsonLdExtra?: object;
 }
 
-const { title, description, home = false } = Astro.props;
+const { title, description, home = false, jsonLdExtra } = Astro.props;
 const site = loadSite();
 const path = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '') || '/';
 const canonical = new URL(path, Astro.site ?? site.siteUrl).href;
@@ -64,6 +65,7 @@ const jsonLd = {
       rel="stylesheet"
     />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {jsonLdExtra && <script type="application/ld+json" set:html={JSON.stringify(jsonLdExtra)} />}
   </head>
   <body>
     <a class="skip" href="#main">跳到主要內容</a>

@@ -3,11 +3,12 @@ import Base from '../layouts/Base.astro';
 import EventCard from '../components/EventCard.astro';
 import NewsList from '../components/NewsList.astro';
 import { splitEvents, taipeiToday } from '../lib/classify.mjs';
+import { isPromoted } from '../lib/signup.mjs';
 import { loadEvents, loadNews, loadSite } from '../lib/load';
 
 const site = loadSite();
 const { upcoming } = splitEvents(await loadEvents(), taipeiToday());
-const next = upcoming[0];
+const next = upcoming.find((event) => isPromoted(event));
 const news = (await loadNews()).slice(0, 3);
 const comma = site.tagline.indexOf('，');
 const titleLead = comma === -1 ? site.tagline : site.tagline.slice(0, comma);
