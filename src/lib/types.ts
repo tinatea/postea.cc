@@ -43,6 +43,8 @@ export type CourseOffering = {
   subtitle: string;
   body: string;
   prices: string[];
+  duration: string;
+  takeHome: string;
   cta: string;
   href: string;
 };

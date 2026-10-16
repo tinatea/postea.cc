@@ -12,7 +12,7 @@ function external(href: string) {
 
 <Base
   title="課程與體驗"
-  description="調香探索與體驗：一對一 NT$2,000，兩至四人同行每人 NT$1,800。每月主題調香：每人 NT$800。"
+  description="調香探索與體驗：一對一 NT$2,000，兩人同行每人 NT$1,800，三至四人同行每人 NT$1,600。每月主題調香：每人 NT$800。"
 >
   <div class="wrap">
     <header class="page-head">
@@ -34,6 +34,20 @@ function external(href: string) {
             </ul>
           )
         }
+        <dl class="course-facts">
+          {explore.duration && (
+            <div>
+              <dt>時長</dt>
+              <dd>{explore.duration}</dd>
+            </div>
+          )}
+          {explore.takeHome && (
+            <div>
+              <dt>成品</dt>
+              <dd>{explore.takeHome}</dd>
+            </div>
+          )}
+        </dl>
         {
           explore.cta && explore.href && (
             <a
@@ -59,6 +73,16 @@ function external(href: string) {
                 <li>{price}</li>
               ))}
             </ul>
+          )
+        }
+        {
+          gathering.takeHome && (
+            <dl class="course-facts">
+              <div>
+                <dt>成品</dt>
+                <dd>{gathering.takeHome}</dd>
+              </div>
+            </dl>
           )
         }
         {

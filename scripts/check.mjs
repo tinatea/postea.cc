@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import yaml from 'js-yaml';
 import { splitEvents, formatEventDate } from '../src/lib/classify.mjs';
 import { buildMonthGrid, defaultMonth, shortEventName } from '../src/lib/calendar.mjs';
-import { eventsFromCsv, parseEventsCsv, parseNewsCsv } from '../src/lib/load.ts';
+import { eventsFromCsv, loadOfferings, parseEventsCsv, parseNewsCsv } from '../src/lib/load.ts';
 
 const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -116,24 +116,38 @@ const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
 });
 assert.equal(offerings.explore.title, '調香探索與體驗');
 assert.equal(offerings.explore.subtitle, '為你一個人調的香');
-assert.match(offerings.explore.body, /兩到四人同行，各自調出自己的那一瓶。/);
-assert.deepEqual(offerings.explore.prices, ['一對一 NT$2,000', '兩至四人同行，每人 NT$1,800']);
+assert.match(offerings.explore.body, /約 1\.5 到 2 小時，帶走一瓶 30ml 淡香水，或一瓶空間噴霧/);
+assert.deepEqual(offerings.explore.prices, [
+  '一對一 NT$2,000',
+  '兩人同行，每人 NT$1,800',
+  '三至四人同行，每人 NT$1,600',
+]);
+assert.equal(offerings.explore.duration, '約 1.5 至 2 小時');
+assert.equal(offerings.explore.sprayVolume, '');
+assert.equal(String(offerings.explore.sprayVolume).includes('＿'), false);
 assert.equal(offerings.explore.cta, '用 LINE 預約');
 assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
 assert.equal(offerings.gathering.title, '每月主題調香');
 assert.equal(offerings.gathering.prices[0], '每人 NT$800');
+assert.equal(offerings.gathering.takeHome, '10ml 主題香水');
 assert.equal(offerings.gathering.cta, '看本月主題');
 assert.equal(offerings.gathering.href, '/events');
 assert.equal(offerings.choose.title, '怎麼選？');
 assert.match(offerings.choose.paragraphs[0], /選每月主題調香。/);
 assert.match(offerings.choose.paragraphs[1], /選調香探索與體驗。/);
 assert.equal(JSON.stringify(offerings).includes('待補'), false);
+assert.equal(JSON.stringify(offerings).includes('＿'), false);
+const loadedOfferings = loadOfferings();
+assert.equal(loadedOfferings.explore.takeHome, '30ml 淡香水或空間噴霧（二選一）');
+assert.equal(loadedOfferings.explore.duration, '約 1.5 至 2 小時');
+assert.equal(loadedOfferings.gathering.takeHome, '10ml 主題香水');
+assert.equal(/ml\s*空間噴霧|＿/.test(loadedOfferings.explore.takeHome), false);
 const experiences = fs.readFileSync('src/pages/experiences.astro', 'utf8');
 assert.match(experiences, /用 LINE 預約|explore\.cta/);
 assert.match(experiences, /calendar-blank/);
 for (const file of ['README.md', 'src/pages/experiences.astro', 'src/pages/index.astro', 'docs/維護說明.md']) {
   const text = fs.readFileSync(file, 'utf8');
-  for (const retired of ['$1500', '$2500', '香遇淡香水', '香信', '空間噴霧', '保養油']) {
+  for (const retired of ['$1500', '$2500', '香遇淡香水', '香信', '香遇空間噴霧', '保養油', '＿＿']) {
     assert.equal(text.includes(retired), false, `${file} 仍有舊價目：${retired}`);
   }
 }

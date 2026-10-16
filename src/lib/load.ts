@@ -335,7 +335,21 @@ async function loadNewsOnce(): Promise<NewsItem[]> {
   }
 }
 
-function loadCourse(raw: unknown): CourseOffering {
+/** 空間噴霧容量。留空、或仍是底線，頁面就只寫「空間噴霧」。 */
+function confirmedSprayVolume(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.includes('＿') || trimmed.includes('__')) return '';
+  return trimmed;
+}
+
+function exploreTakeHome(record: Record<string, unknown>): string {
+  const perfume = asString(record.perfume) || '30ml 淡香水';
+  const volume = confirmedSprayVolume(asString(record.sprayVolume));
+  const spray = volume ? `${volume} 空間噴霧` : '空間噴霧';
+  return volume ? `${perfume}或 ${spray}（二選一）` : `${perfume}或${spray}（二選一）`;
+}
+
+function loadCourse(raw: unknown, takeHome?: string): CourseOffering {
   const record = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const prices = Array.isArray(record.prices) ? record.prices.map((item) => asString(item)).filter(Boolean) : [];
   return {
@@ -343,6 +357,8 @@ function loadCourse(raw: unknown): CourseOffering {
     subtitle: asString(record.subtitle),
     body: asString(record.body),
     prices,
+    duration: asString(record.duration),
+    takeHome: takeHome ?? asString(record.takeHome),
     cta: asString(record.cta),
     href: asString(record.href),
   };
@@ -356,7 +372,7 @@ export function loadOfferings(): Offerings {
     ? choose.paragraphs.map((item) => asString(item)).filter(Boolean)
     : [];
   return {
-    explore: loadCourse(data.explore),
+    explore: loadCourse(data.explore, exploreTakeHome((data.explore ?? {}) as Record<string, unknown>)),
     gathering: loadCourse(data.gathering),
     choose: {
       title: asString(choose.title),

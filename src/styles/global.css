@@ -592,11 +592,32 @@ main {
 
 .course-prices {
   list-style: none;
-  margin: 0 0 1.15rem;
+  margin: 0 0 0.85rem;
   padding: 0;
   display: grid;
   gap: 0.2rem;
   font-weight: 700;
+}
+
+.course-facts {
+  margin: 0 0 1.15rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.course-facts div {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  gap: 0.65rem;
+}
+
+.course-facts dt {
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+.course-facts dd {
+  margin: 0;
 }
 
 .choose {
