@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
-import { parseCsv, parseProducts } from './products.mjs';
-import type { NewsItem, OfferingPoint, Offerings, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
+import { parseCsv } from './products.mjs';
+import type { CourseOffering, NewsItem, Offerings, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
 
@@ -335,47 +335,34 @@ async function loadNewsOnce(): Promise<NewsItem[]> {
   }
 }
 
-const POINT_TONES = new Set(['sage', 'red', 'aqua']);
+function loadCourse(raw: unknown): CourseOffering {
+  const record = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const prices = Array.isArray(record.prices) ? record.prices.map((item) => asString(item)).filter(Boolean) : [];
+  return {
+    title: asString(record.title),
+    subtitle: asString(record.subtitle),
+    body: asString(record.body),
+    prices,
+    cta: asString(record.cta),
+    href: asString(record.href),
+  };
+}
 
 export function loadOfferings(): Offerings {
   const raw = readYaml('src/data/offerings.yml');
   const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-  const solo = (data.solo && typeof data.solo === 'object' ? data.solo : {}) as Record<string, unknown>;
-  const gathering = (
-    data.gathering && typeof data.gathering === 'object' ? data.gathering : {}
-  ) as Record<string, unknown>;
-  const points = Array.isArray(gathering.points) ? gathering.points : [];
+  const choose = (data.choose && typeof data.choose === 'object' ? data.choose : {}) as Record<string, unknown>;
+  const paragraphs = Array.isArray(choose.paragraphs)
+    ? choose.paragraphs.map((item) => asString(item)).filter(Boolean)
+    : [];
   return {
-    solo: {
-      name: asString(solo.name),
-      kind: asString(solo.kind),
-      pill: asString(solo.pill),
-    },
-    gathering: {
-      name: asString(gathering.name),
-      kind: asString(gathering.kind),
-      pill: asString(gathering.pill),
-      price: asString(gathering.price),
-      points: points.flatMap((item) => {
-        if (!item || typeof item !== 'object') return [];
-        const record = item as Record<string, unknown>;
-        const title = asString(record.title);
-        const body = asString(record.body);
-        if (!title || !body) return [];
-        const tone = asString(record.tone);
-        const point: OfferingPoint = {
-          title,
-          body,
-          tone: POINT_TONES.has(tone) ? (tone as OfferingPoint['tone']) : 'sage',
-        };
-        return [point];
-      }),
+    explore: loadCourse(data.explore),
+    gathering: loadCourse(data.gathering),
+    choose: {
+      title: asString(choose.title),
+      paragraphs,
     },
   };
-}
-
-export function loadProducts(): ProductGroup[] {
-  return parseProducts(readText('src/data/products.csv')) as ProductGroup[];
 }
 
 function parseFrontmatter(raw: string): { data: Record<string, unknown>; body: string } {

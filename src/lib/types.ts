@@ -38,37 +38,22 @@ export type NewsItem = {
   image: string;
 };
 
-export type OfferingPoint = {
+export type CourseOffering = {
   title: string;
+  subtitle: string;
   body: string;
-  tone: 'sage' | 'red' | 'aqua';
+  prices: string[];
+  cta: string;
+  href: string;
 };
 
 export type Offerings = {
-  solo: {
-    name: string;
-    kind: string;
-    pill: string;
+  explore: CourseOffering;
+  gathering: CourseOffering;
+  choose: {
+    title: string;
+    paragraphs: string[];
   };
-  gathering: {
-    name: string;
-    kind: string;
-    pill: string;
-    price: string;
-    points: OfferingPoint[];
-  };
-};
-
-export type ProductItem = {
-  name: string;
-  description: string;
-  price: string;
-  duration: string | null;
-};
-
-export type ProductGroup = {
-  heading: string;
-  items: ProductItem[];
 };
 
 export type RecapPhoto = {

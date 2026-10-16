@@ -1,43 +1,81 @@
 ---
 import Base from '../layouts/Base.astro';
-import Offerings from '../components/Offerings.astro';
-import { loadProducts } from '../lib/load';
+import Icon from '../components/Icon.astro';
+import { loadOfferings } from '../lib/load';
 
-const groups = loadProducts();
+const { explore, gathering, choose } = loadOfferings();
+
+function external(href: string) {
+  return /^https?:\/\//i.test(href);
+}
 ---
 
 <Base
   title="課程與體驗"
-  description="香語所的調香體驗與商品。香遇是一個人自由調香，每月主題小聚是一群人跟著主題玩香。價格與說明以價目表為準。"
+  description="調香探索與體驗：一對一 NT$2,000，兩至四人同行每人 NT$1,800。每月主題調香：每人 NT$800。"
 >
   <div class="wrap">
     <header class="page-head">
-      <p class="kicker">價目</p>
+      <p class="kicker">課程</p>
       <h1>課程與體驗</h1>
-      <p class="lede">香遇是一個人自由調香。每月主題小聚是一群人跟著主題玩香。下面的名稱、說明和價格照表上的文字。</p>
     </header>
 
-    <Offerings />
-
-    <div id="experiences-list">
-      {
-        groups.map((group) => (
-          <section class="group">
-            <h2>{group.heading}</h2>
-            <div class="stack">
-              {group.items.map((item) => (
-                <article class="stamp product">
-                  <h3 class="product-name">{item.name}</h3>
-                  {item.price && <p class="price">{item.price}</p>}
-                  {item.duration && <p class="duration">{item.duration}</p>}
-                  {item.description && <p class="exact">{item.description}</p>}
-                </article>
+    <div class="course-list">
+      <article class="stamp course-card">
+        <h2 class="course-title">{explore.title}</h2>
+        {explore.subtitle && <p class="course-sub">{explore.subtitle}</p>}
+        {explore.body && <p class="course-body">{explore.body}</p>}
+        {
+          explore.prices.length > 0 && (
+            <ul class="course-prices">
+              {explore.prices.map((price) => (
+                <li>{price}</li>
               ))}
-            </div>
-          </section>
-        ))
-      }
+            </ul>
+          )
+        }
+        {
+          explore.cta && explore.href && (
+            <a
+              class="button"
+              href={explore.href}
+              target={external(explore.href) ? '_blank' : undefined}
+              rel={external(explore.href) ? 'noopener noreferrer' : undefined}
+            >
+              {explore.cta}
+            </a>
+          )
+        }
+      </article>
+
+      <article class="stamp course-card">
+        <h2 class="course-title">{gathering.title}</h2>
+        {gathering.subtitle && <p class="course-sub">{gathering.subtitle}</p>}
+        {gathering.body && <p class="course-body">{gathering.body}</p>}
+        {
+          gathering.prices.length > 0 && (
+            <ul class="course-prices">
+              {gathering.prices.map((price) => (
+                <li>{price}</li>
+              ))}
+            </ul>
+          )
+        }
+        {
+          gathering.cta && gathering.href && (
+            <a class="button" href={gathering.href}>
+              <Icon name="calendar-blank" />
+              {gathering.cta}
+            </a>
+          )
+        }
+      </article>
     </div>
+
+    <section class="stamp choose" aria-labelledby="choose-title">
+      <h2 id="choose-title">{choose.title}</h2>
+      {choose.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </section>
 
     <figure class="placeholder">
       <img
