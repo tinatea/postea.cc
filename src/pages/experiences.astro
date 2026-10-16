@@ -1,18 +1,35 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import { loadOfferings } from '../lib/load';
-
-const { explore, gathering, choose } = loadOfferings();
+import PriceRows from '../components/PriceRows.astro';
+import { shortEventName } from '../lib/calendar.mjs';
+import { splitEvents, taipeiToday } from '../lib/classify.mjs';
+import { loadEvents, loadOfferings } from '../lib/load';
+import type { WorkshopEvent } from '../lib/types';
 
 function external(href: string) {
   return /^https?:\/\//i.test(href);
 }
+
+const { explore, gathering, choose } = loadOfferings();
+const { upcoming } = splitEvents(await loadEvents(), taipeiToday());
+const next = upcoming[0];
+
+function themeWhen(event: WorkshopEvent) {
+  const [, month, day] = event.date.split('-');
+  const weekday = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Taipei',
+    weekday: 'short',
+  }).format(new Date(`${event.date}T12:00:00+08:00`));
+  return `${Number(month)}.${day} ${weekday}. ${event.startTime}`;
+}
+
+const exploreTags = [explore.duration, explore.takeHome].filter(Boolean);
 ---
 
 <Base
   title="課程與體驗"
-  description="調香探索與體驗：一對一 NT$2,000，兩人同行每人 NT$1,800，三至四人同行每人 NT$1,600。每月主題調香：每人 NT$800。"
+  description="調香探索與體驗：一對一 NT$2,000，兩人同行每人 NT$1,800，三至四人同行每人 NT$1,600。成品是 30ml 淡香水或 50ml 空間噴霧（二選一）。每月主題調香：每人 NT$800。"
 >
   <div class="wrap">
     <header class="page-head">
@@ -20,38 +37,25 @@ function external(href: string) {
       <h1>課程與體驗</h1>
     </header>
 
-    <div class="course-list">
-      <article class="stamp course-card">
-        <h2 class="course-title">{explore.title}</h2>
-        {explore.subtitle && <p class="course-sub">{explore.subtitle}</p>}
-        {explore.body && <p class="course-body">{explore.body}</p>}
+    <article class="stamp price-card">
+      <section class="price-sec" aria-labelledby="explore-title">
+        <p class="course-pill course-pill-sage">{explore.title}</p>
+        {explore.subtitle && <h2 id="explore-title" class="price-heading">{explore.subtitle}</h2>}
+        {explore.body && <p class="price-desc">{explore.body}</p>}
         {
-          explore.prices.length > 0 && (
-            <ul class="course-prices">
-              {explore.prices.map((price) => (
-                <li>{price}</li>
+          exploreTags.length > 0 && (
+            <ul class="price-tags">
+              {exploreTags.map((tag) => (
+                <li>{tag}</li>
               ))}
             </ul>
           )
         }
-        <dl class="course-facts">
-          {explore.duration && (
-            <div>
-              <dt>時長</dt>
-              <dd>{explore.duration}</dd>
-            </div>
-          )}
-          {explore.takeHome && (
-            <div>
-              <dt>成品</dt>
-              <dd>{explore.takeHome}</dd>
-            </div>
-          )}
-        </dl>
+        <PriceRows course={explore} />
         {
           explore.cta && explore.href && (
             <a
-              class="button"
+              class="button price-cta"
               href={explore.href}
               target={external(explore.href) ? '_blank' : undefined}
               rel={external(explore.href) ? 'noopener noreferrer' : undefined}
@@ -60,41 +64,43 @@ function external(href: string) {
             </a>
           )
         }
-      </article>
+      </section>
 
-      <article class="stamp course-card">
-        <h2 class="course-title">{gathering.title}</h2>
-        {gathering.subtitle && <p class="course-sub">{gathering.subtitle}</p>}
-        {gathering.body && <p class="course-body">{gathering.body}</p>}
+      <section class="price-sec" aria-labelledby="gathering-title">
+        <p class="course-pill course-pill-flower">{gathering.title}</p>
+        {gathering.subtitle && <h2 id="gathering-title" class="price-heading">{gathering.subtitle}</h2>}
+        {gathering.body && <p class="price-desc">{gathering.body}</p>}
         {
-          gathering.prices.length > 0 && (
-            <ul class="course-prices">
-              {gathering.prices.map((price) => (
-                <li>{price}</li>
+          gathering.tags.length > 0 && (
+            <ul class="price-tags">
+              {gathering.tags.map((tag) => (
+                <li>{tag}</li>
               ))}
             </ul>
           )
         }
+        <PriceRows course={gathering} />
         {
-          gathering.takeHome && (
-            <dl class="course-facts">
-              <div>
-                <dt>成品</dt>
-                <dd>{gathering.takeHome}</dd>
-              </div>
-            </dl>
+          next && (
+            <a class="theme-row" href={`/events/${next.date.slice(0, 7)}`}>
+              <span class="course-pill course-pill-gold" style={next.accentColor ? `background:${next.accentColor}` : undefined}>
+                {Number(next.date.slice(5, 7))}月主題
+              </span>
+              <span class="theme-name">{shortEventName(next.title)}</span>
+              <span class="theme-when">{themeWhen(next)}</span>
+            </a>
           )
         }
         {
           gathering.cta && gathering.href && (
-            <a class="button" href={gathering.href}>
+            <a class="button price-cta" href={gathering.href}>
               <Icon name="calendar-blank" />
               {gathering.cta}
             </a>
           )
         }
-      </article>
-    </div>
+      </section>
+    </article>
 
     <section class="stamp choose" aria-labelledby="choose-title">
       <h2 id="choose-title">{choose.title}</h2>

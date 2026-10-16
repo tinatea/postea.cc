@@ -38,11 +38,18 @@ export type NewsItem = {
   image: string;
 };
 
+export type CoursePrice = {
+  label: string;
+  amount: string;
+  each: string;
+};
+
 export type CourseOffering = {
   title: string;
   subtitle: string;
   body: string;
-  prices: string[];
+  prices: CoursePrice[];
+  tags: string[];
   duration: string;
   takeHome: string;
   cta: string;

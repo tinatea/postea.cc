@@ -116,19 +116,22 @@ const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
 });
 assert.equal(offerings.explore.title, '調香探索與體驗');
 assert.equal(offerings.explore.subtitle, '為你一個人調的香');
-assert.match(offerings.explore.body, /約 1\.5 到 2 小時，帶走一瓶 30ml 淡香水，或一瓶空間噴霧/);
-assert.deepEqual(offerings.explore.prices, [
-  '一對一 NT$2,000',
-  '兩人同行，每人 NT$1,800',
-  '三至四人同行，每人 NT$1,600',
-]);
+assert.match(offerings.explore.body, /或一瓶 50ml 空間噴霧/);
+assert.deepEqual(
+  offerings.explore.prices.map((price) => price.label),
+  ['一對一', '兩人同行', '三至四人同行'],
+);
+assert.deepEqual(
+  offerings.explore.prices.map((price) => price.amount),
+  ['2,000', '1,800', '1,600'],
+);
 assert.equal(offerings.explore.duration, '約 1.5 至 2 小時');
-assert.equal(offerings.explore.sprayVolume, '');
-assert.equal(String(offerings.explore.sprayVolume).includes('＿'), false);
+assert.equal(offerings.explore.sprayVolume, '50ml');
 assert.equal(offerings.explore.cta, '用 LINE 預約');
 assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
 assert.equal(offerings.gathering.title, '每月主題調香');
-assert.equal(offerings.gathering.prices[0], '每人 NT$800');
+assert.equal(offerings.gathering.prices[0].label, '每人');
+assert.equal(offerings.gathering.prices[0].amount, '800');
 assert.equal(offerings.gathering.takeHome, '10ml 主題香水');
 assert.equal(offerings.gathering.cta, '看本月主題');
 assert.equal(offerings.gathering.href, '/events');
@@ -138,10 +141,11 @@ assert.match(offerings.choose.paragraphs[1], /選調香探索與體驗。/);
 assert.equal(JSON.stringify(offerings).includes('待補'), false);
 assert.equal(JSON.stringify(offerings).includes('＿'), false);
 const loadedOfferings = loadOfferings();
-assert.equal(loadedOfferings.explore.takeHome, '30ml 淡香水或空間噴霧（二選一）');
+assert.equal(loadedOfferings.explore.takeHome, '30ml 淡香水或 50ml 空間噴霧（二選一）');
 assert.equal(loadedOfferings.explore.duration, '約 1.5 至 2 小時');
 assert.equal(loadedOfferings.gathering.takeHome, '10ml 主題香水');
-assert.equal(/ml\s*空間噴霧|＿/.test(loadedOfferings.explore.takeHome), false);
+assert.equal(loadedOfferings.explore.takeHome.includes('＿'), false);
+assert.equal(loadedOfferings.explore.prices.length, 3);
 const experiences = fs.readFileSync('src/pages/experiences.astro', 'utf8');
 assert.match(experiences, /用 LINE 預約|explore\.cta/);
 assert.match(experiences, /calendar-blank/);

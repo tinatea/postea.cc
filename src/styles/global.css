@@ -570,54 +570,124 @@ main {
   font-size: 0.9rem;
 }
 
-.stack,
-.course-list {
+.stack {
   display: grid;
   gap: 1rem;
 }
 
-.course-title {
+.price-card,
+.choose {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.price-sec + .price-sec {
+  margin-top: 1.7rem;
+}
+
+.course-pill {
+  display: inline-block;
   margin: 0;
-  font-size: 1.45rem;
+  padding: 0.28rem 0.85rem;
+  border-radius: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.45;
 }
 
-.course-sub {
-  margin: 0.15rem 0 0.75rem;
-  font-size: 1.05rem;
+.course-pill-sage {
+  background: #899272;
+  color: var(--color-on-sage);
 }
 
-.course-body {
-  margin: 0 0 0.85rem;
+.course-pill-flower {
+  background: #af3332;
+  color: #ffffff;
 }
 
-.course-prices {
-  list-style: none;
-  margin: 0 0 0.85rem;
-  padding: 0;
-  display: grid;
-  gap: 0.2rem;
+.course-pill-gold {
+  background: #d9a441;
+  color: #1a1a1a;
+  letter-spacing: 0.04em;
+  font-size: 0.92rem;
+}
+
+.price-heading {
+  margin: 0.55rem 0 0;
+  font-size: 1.35rem;
   font-weight: 700;
 }
 
-.course-facts {
-  margin: 0 0 1.15rem;
-  display: grid;
-  gap: 0.35rem;
+.price-desc {
+  margin: 0.35rem 0 0;
+  color: #5e5a57;
+  line-height: 1.65;
 }
 
-.course-facts div {
-  display: grid;
-  grid-template-columns: 3.2rem minmax(0, 1fr);
-  gap: 0.65rem;
+.price-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
 }
 
-.course-facts dt {
-  margin: 0;
+.price-tags li {
+  border: 1.5px solid #bdb8b3;
+  border-radius: 999px;
+  padding: 0.18rem 0.7rem;
+  color: #6a6662;
+}
+
+.price-rows {
+  margin-top: 0.35rem;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  border-bottom: 1.5px solid #cfcac5;
+  padding: 0.4rem 0.15rem;
+}
+
+.price-row strong {
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.price-row small {
+  margin-right: 0.28rem;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: #8a8580;
+}
+
+.price-cta {
+  margin-top: 1rem;
+}
+
+.theme-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
+  margin-top: 1rem;
+  text-decoration: none;
+}
+
+.theme-name {
+  font-size: 1.15rem;
+}
+
+.theme-when {
+  font-family: var(--font-word);
   letter-spacing: 0.06em;
-}
-
-.course-facts dd {
-  margin: 0;
+  color: #8a8580;
 }
 
 .choose {

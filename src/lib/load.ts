@@ -3,7 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv } from './products.mjs';
-import type { CourseOffering, NewsItem, Offerings, Recap, SiteConfig, WorkshopEvent } from './types';
+import type { CourseOffering, CoursePrice, NewsItem, Offerings, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
 
@@ -349,14 +349,30 @@ function exploreTakeHome(record: Record<string, unknown>): string {
   return volume ? `${perfume}或 ${spray}（二選一）` : `${perfume}或${spray}（二選一）`;
 }
 
+function loadPrices(raw: unknown): CoursePrice[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const record = item as Record<string, unknown>;
+    const label = asString(record.label);
+    const amount = asString(record.amount);
+    if (!label || !amount) return [];
+    return [{ label, amount, each: asString(record.each) }];
+  });
+}
+
+function loadTags(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.map((item) => asString(item)).filter(Boolean) : [];
+}
+
 function loadCourse(raw: unknown, takeHome?: string): CourseOffering {
   const record = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-  const prices = Array.isArray(record.prices) ? record.prices.map((item) => asString(item)).filter(Boolean) : [];
   return {
     title: asString(record.title),
     subtitle: asString(record.subtitle),
     body: asString(record.body),
-    prices,
+    prices: loadPrices(record.prices),
+    tags: loadTags(record.tags),
     duration: asString(record.duration),
     takeHome: takeHome ?? asString(record.takeHome),
     cta: asString(record.cta),
