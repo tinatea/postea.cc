@@ -27,7 +27,15 @@ export type SiteConfig = {
   xHandle: string;
   siteUrl: string;
   about: string;
-  eventsSheetUrl: string;
+  sheetId: string;
+};
+
+export type NewsItem = {
+  date: string;
+  title: string;
+  body: string;
+  link: string;
+  image: string;
 };
 
 export type OfferingPoint = {

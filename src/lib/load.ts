@@ -3,7 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv, parseProducts } from './products.mjs';
-import type { OfferingPoint, Offerings, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
+import type { NewsItem, OfferingPoint, Offerings, ProductGroup, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
 
@@ -39,7 +39,7 @@ export function loadSite(): SiteConfig {
     xHandle: asString(data.xHandle),
     siteUrl: asString(data.siteUrl) || 'https://postea.cc',
     about: asString(data.about),
-    eventsSheetUrl: asString(data.eventsSheetUrl),
+    sheetId: asString(data.sheetId),
   };
 }
 
@@ -78,9 +78,11 @@ function loadLocalEvents(): WorkshopEvent[] {
 const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   id: 'id',
   代號: 'id',
+  活動代號: 'id',
   title: 'title',
   標題: 'title',
   名稱: 'title',
+  活動名稱: 'title',
   date: 'date',
   日期: 'date',
   starttime: 'startTime',
@@ -99,8 +101,10 @@ const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   description: 'description',
   說明: 'description',
   介紹: 'description',
+  活動介紹: 'description',
   takehome: 'takeHome',
   帶走: 'takeHome',
+  帶走的東西: 'takeHome',
   registrationurl: 'registrationUrl',
   報名連結: 'registrationUrl',
   報名: 'registrationUrl',
@@ -108,45 +112,225 @@ const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   主題色: 'accentColor',
 };
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 function headerKey(cell: string): keyof WorkshopEvent | undefined {
   const trimmed = cell.trim();
   if (HEADER_ALIAS[trimmed]) return HEADER_ALIAS[trimmed];
   return HEADER_ALIAS[trimmed.toLowerCase().replace(/\s+/g, '')];
 }
 
-export function eventsFromCsv(text: string): WorkshopEvent[] {
+export function parseEventsCsv(text: string): { events: WorkshopEvent[]; error: string | null } {
   const rows = parseCsv(text);
-  if (rows.length < 2) return [];
+  if (rows.length < 2) return { events: [], error: '活動表沒有標題列' };
   const keys = rows[0].map((cell) => headerKey(cell));
-  if (!keys.includes('title') || !keys.includes('date')) return [];
-  return rows.slice(1).flatMap((row, index) => {
+  if (!keys.includes('title') || !keys.includes('date')) {
+    return { events: [], error: '活動表缺少「活動名稱」或「日期」欄' };
+  }
+  const events: WorkshopEvent[] = [];
+  for (let index = 1; index < rows.length; index += 1) {
+    const row = rows[index];
     const record: Record<string, unknown> = {};
     keys.forEach((key, cellIndex) => {
       if (key) record[key] = row[cellIndex] ?? '';
     });
+    const mapped = Object.values(record).map((value) => asString(value));
+    if (mapped.every((value) => value === '')) continue;
+    const rowNumber = index + 1;
+    const title = asString(record.title);
+    const date = asString(record.date);
+    if (!title) return { events: [], error: `活動表第 ${rowNumber} 列沒有活動名稱` };
+    if (!DATE_RE.test(date)) {
+      return { events: [], error: `活動表第 ${rowNumber} 列的日期要寫成 2026-11-21，現在是「${date}」` };
+    }
+    const accent = asString(record.accentColor);
+    if (accent && !ACCENT.test(accent)) {
+      return { events: [], error: `活動表第 ${rowNumber} 列的主題色要寫成 #D9A441，現在是「${accent}」` };
+    }
     const event = normalizeEvent(record, index);
-    return event ? [event] : [];
-  });
+    if (!event) return { events: [], error: `活動表第 ${rowNumber} 列無法讀取` };
+    events.push(event);
+  }
+  if (events.length === 0) return { events: [], error: '活動表沒有任何一場活動' };
+  return { events, error: null };
 }
 
-export async function loadEvents(): Promise<WorkshopEvent[]> {
+export function eventsFromCsv(text: string): WorkshopEvent[] {
+  const parsed = parseEventsCsv(text);
+  return parsed.error ? [] : parsed.events;
+}
+
+const EVENTS_TAB = '活動';
+const NEWS_TAB = '最新消息';
+
+function sheetCsvUrl(sheetId: string, tab: string): string {
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+}
+
+async function fetchSheetCsv(sheetId: string, tab: string): Promise<string> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(sheetCsvUrl(sheetId, tab), {
+        signal: AbortSignal.timeout(15000),
+        redirect: 'follow',
+        headers: { 'user-agent': 'postea-cc-build' },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      const trimmed = text.trim();
+      if (!trimmed || trimmed.startsWith('<')) throw new Error('回應不是 CSV（試算表可能還沒公開）');
+      return text;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 400));
+    }
+  }
+  throw lastError;
+}
+
+let eventsPromise: Promise<WorkshopEvent[]> | undefined;
+
+export function loadEvents(): Promise<WorkshopEvent[]> {
+  eventsPromise ??= loadEventsOnce();
+  return eventsPromise;
+}
+
+async function loadEventsOnce(): Promise<WorkshopEvent[]> {
   const local = loadLocalEvents();
-  const url = loadSite().eventsSheetUrl;
-  if (!url) return local;
+  const sheetId = loadSite().sheetId;
+  if (!sheetId) {
+    console.warn(`[postea] 活動：沒有填 sheetId，使用 src/data/events.yml（${local.length} 場）`);
+    return local;
+  }
   try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
-      redirect: 'follow',
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.trim().startsWith('<')) throw new Error('回應不是 CSV');
-    const remote = eventsFromCsv(text);
-    if (remote.length === 0) throw new Error('試算表沒有讀到任何一場活動');
-    console.warn(`[postea] 使用 Google 試算表的 ${remote.length} 場活動`);
-    return remote;
+    const text = await fetchSheetCsv(sheetId, EVENTS_TAB);
+    const parsed = parseEventsCsv(text);
+    if (parsed.error) throw new Error(parsed.error);
+    console.warn(`[postea] 活動：使用 Google 試算表「${EVENTS_TAB}」（${parsed.events.length} 場）`);
+    return parsed.events;
   } catch (error) {
-    console.warn(`[postea] 讀不到活動試算表，改用 data/events.yml。原因：${error}`);
+    console.warn(`[postea] 活動：試算表讀取或格式有問題，改用 src/data/events.yml（${local.length} 場）。原因：${error}`);
+    return local;
+  }
+}
+
+const NEWS_ALIAS: Record<string, keyof NewsItem | 'visible'> = {
+  日期: 'date',
+  date: 'date',
+  標題: 'title',
+  title: 'title',
+  內文: 'body',
+  body: 'body',
+  連結: 'link',
+  link: 'link',
+  圖片連結: 'image',
+  image: 'image',
+  顯示: 'visible',
+  visible: 'visible',
+};
+
+function newsHeader(cell: string): keyof NewsItem | 'visible' | undefined {
+  const trimmed = cell.trim();
+  if (NEWS_ALIAS[trimmed]) return NEWS_ALIAS[trimmed];
+  return NEWS_ALIAS[trimmed.toLowerCase().replace(/\s+/g, '')];
+}
+
+function isHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+export function parseNewsCsv(text: string): { items: NewsItem[]; error: string | null } {
+  const rows = parseCsv(text);
+  if (rows.length < 2) return { items: [], error: '最新消息沒有標題列' };
+  const keys = rows[0].map((cell) => newsHeader(cell));
+  if (!keys.includes('title') || !keys.includes('date') || !keys.includes('visible')) {
+    return { items: [], error: '最新消息缺少「日期」、「標題」或「顯示」欄' };
+  }
+  const items: NewsItem[] = [];
+  for (let index = 1; index < rows.length; index += 1) {
+    const row = rows[index];
+    const record: Record<string, string> = {};
+    keys.forEach((key, cellIndex) => {
+      if (key) record[key] = row[cellIndex] ?? '';
+    });
+    const mapped = Object.values(record).map((value) => asString(value));
+    if (mapped.every((value) => value === '')) continue;
+    const visible = asString(record.visible);
+    if (visible === '' || visible === '否') continue;
+    const rowNumber = index + 1;
+    if (visible !== '是') {
+      return { items: [], error: `最新消息第 ${rowNumber} 列的「顯示」只能填「是」或「否」，現在是「${visible}」` };
+    }
+    const title = asString(record.title);
+    const date = asString(record.date);
+    if (!title) return { items: [], error: `最新消息第 ${rowNumber} 列沒有標題` };
+    if (!DATE_RE.test(date)) {
+      return { items: [], error: `最新消息第 ${rowNumber} 列的日期要寫成 2026-10-16，現在是「${date}」` };
+    }
+    const link = asString(record.link);
+    const image = asString(record.image);
+    if (link && !isHttpUrl(link)) {
+      return { items: [], error: `最新消息第 ${rowNumber} 列的連結要以 http:// 或 https:// 開頭` };
+    }
+    if (image && !isHttpUrl(image)) {
+      return { items: [], error: `最新消息第 ${rowNumber} 列的圖片連結要以 http:// 或 https:// 開頭` };
+    }
+    items.push({
+      date,
+      title,
+      body: asString(record.body),
+      link,
+      image,
+    });
+  }
+  items.sort((a, b) => b.date.localeCompare(a.date) || b.title.localeCompare(a.title, 'zh-Hant'));
+  return { items, error: null };
+}
+
+function loadLocalNews(): NewsItem[] {
+  const raw = readYaml('src/data/news.yml');
+  const list = Array.isArray(raw) ? raw : [];
+  return list.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const record = item as Record<string, unknown>;
+    const title = asString(record.title);
+    const date = asString(record.date).slice(0, 10);
+    if (!title || !DATE_RE.test(date)) return [];
+    return [
+      {
+        date,
+        title,
+        body: asString(record.body),
+        link: asString(record.link),
+        image: asString(record.image),
+      } satisfies NewsItem,
+    ];
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.title.localeCompare(a.title, 'zh-Hant'));
+}
+
+let newsPromise: Promise<NewsItem[]> | undefined;
+
+export function loadNews(): Promise<NewsItem[]> {
+  newsPromise ??= loadNewsOnce();
+  return newsPromise;
+}
+
+async function loadNewsOnce(): Promise<NewsItem[]> {
+  const local = loadLocalNews();
+  const sheetId = loadSite().sheetId;
+  if (!sheetId) {
+    console.warn(`[postea] 最新消息：沒有填 sheetId，使用 src/data/news.yml（${local.length} 則）`);
+    return local;
+  }
+  try {
+    const text = await fetchSheetCsv(sheetId, NEWS_TAB);
+    const parsed = parseNewsCsv(text);
+    if (parsed.error) throw new Error(parsed.error);
+    console.warn(`[postea] 最新消息：使用 Google 試算表「${NEWS_TAB}」（${parsed.items.length} 則）`);
+    return parsed.items;
+  } catch (error) {
+    console.warn(`[postea] 最新消息：試算表讀取或格式有問題，改用 src/data/news.yml（${local.length} 則）。原因：${error}`);
     return local;
   }
 }

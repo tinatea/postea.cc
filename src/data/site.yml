@@ -25,8 +25,7 @@ about: |
 
   TODO：請 Tina 補上個人介紹（調香師）。建議 80 到 150 字：怎麼開始調香、香語所想陪來的人做什麼。
 
-# 選用。已「發佈到網路」的 Google 試算表 CSV 網址。
-# 留空：使用 data/events.yml。
-# 有填：建置時優先讀試算表。讀取失敗或一場都沒有，自動改回 events.yml。
-# 試算表會整份取代 events.yml，不是合併。欄位說明見 docs/維護說明.md。
-eventsSheetUrl: ""
+# Google 試算表。建置時讀「活動」和「最新消息」兩個分頁。
+# 讀不到、或日期／主題色格式不對，改用 events.yml 與 news.yml，網站不會空白。
+# 欄位說明見 docs/維護說明.md。
+sheetId: "1VIyh9mh76vbfhPye9M4UE1KYYs0ORjj-hxTGaeFwiGg"

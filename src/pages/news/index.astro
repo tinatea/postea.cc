@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsList from '../../components/NewsList.astro';
+import { loadNews } from '../../lib/load';
+
+const items = await loadNews();
+---
+
+<Base title="最新消息" description="Postèa 香語所的最新消息。">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">消息</p>
+      <h1>最新消息</h1>
+      <p class="lede">新的場次、報名與工作室的近況，會先寫在這裡。</p>
+    </header>
+    {
+      items.length === 0 ? (
+        <p class="empty">目前沒有最新消息。</p>
+      ) : (
+        <NewsList items={items} />
+      )
+    }
+  </div>
+</Base>

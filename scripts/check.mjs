@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import { splitEvents, formatEventDate } from '../src/lib/classify.mjs';
 import { buildMonthGrid, defaultMonth, shortEventName } from '../src/lib/calendar.mjs';
 import { parseProducts } from '../src/lib/products.mjs';
-import { eventsFromCsv } from '../src/lib/load.ts';
+import { eventsFromCsv, parseEventsCsv, parseNewsCsv } from '../src/lib/load.ts';
 
 const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -79,6 +79,33 @@ assert.equal(sheet[0].registrationUrl, '');
 assert.equal(sheet[0].accentColor, '#D9A441');
 assert.equal(eventsFromCsv('not,a,header\nx,y,z\n').length, 0);
 
+const sheetLiveShape = parseEventsCsv(
+  '"活動代號","活動名稱","日期","開始時間","結束時間","地點","費用","人數","帶走的東西","報名連結","主題色","活動介紹","備註"\n"id-1","測試場","2026-12-01","14:00","16:00","台北","NT$800／人","4–10 人","","","#D9A441","第一段\n\n第二段","忽略"\n',
+);
+assert.equal(sheetLiveShape.error, null);
+assert.equal(sheetLiveShape.events[0].id, 'id-1');
+assert.equal(sheetLiveShape.events[0].takeHome, '');
+assert.match(sheetLiveShape.events[0].description, /第一段\n\n第二段/);
+const badAccent = parseEventsCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n');
+assert.match(badAccent.error, /主題色/);
+assert.equal(eventsFromCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n').length, 0);
+
+const newsSheet = parseNewsCsv(
+  '日期,標題,內文,連結,圖片連結,顯示,備註\n2026-10-16,較舊,內文,,,"是",忽略\n2026-10-01,隱藏,內文,,,"否",\n2026-10-20,較新,內文,https://postea.cc/events/,,是,\n',
+);
+assert.equal(newsSheet.error, null);
+assert.deepEqual(
+  newsSheet.items.map((item) => item.title),
+  ['較新', '較舊'],
+);
+assert.equal(newsSheet.items[0].link, 'https://postea.cc/events/');
+assert.match(parseNewsCsv('日期,標題,內文,連結,圖片連結,顯示\n2026-10-16,標題,內文,,,也許\n').error, /顯示/);
+
+const news = yaml.load(fs.readFileSync('src/data/news.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
+assert.equal(news[0].date, '2026-10-16');
+assert.equal(news[0].title, '第一場主題小聚「桂花茶室」11/21 登場');
+assert.match(news[0].link, /postea\.cc\/events/);
+
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
 for (const hex of ['#FAFAFA', '#F2EEEB', '#545454', '#62A297', '#D4082C', '#899272', '#A2EAF1']) {
   assert.ok(theme.includes(hex), `theme.css 缺少 ${hex}`);
@@ -98,6 +125,7 @@ assert.equal(site.name, 'Postèa 香語所');
 assert.match(site.lineUrl, /@144eqxql/);
 assert.equal(site.lineId, '@144eqxql');
 assert.match(site.xUrl, /postea_scent/);
+assert.equal(site.sheetId, '1VIyh9mh76vbfhPye9M4UE1KYYs0ORjj-hxTGaeFwiGg');
 
 const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -123,6 +151,15 @@ assert.equal(header.includes('文宣'), false);
 assert.match(header, /aria-label="選單"/);
 assert.match(header, /name="list"/);
 assert.match(header, /calendar-blank/);
+assert.match(header, /newspaper/);
+assert.match(header, /最新消息/);
+assert.ok(fs.existsSync('src/pages/news/index.astro'));
+const workflow = fs.readFileSync('.github/workflows/pages.yml', 'utf8');
+assert.match(workflow, /cron: '7 22 \* \* \*'/);
+assert.equal(workflow.includes("cron: '30 16 * * *'"), false);
+assert.match(workflow, /workflow_dispatch/);
+const css = fs.readFileSync('src/styles/global.css', 'utf8');
+assert.match(css, /details\.menu::details-content/);
 
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
 assert.ok(fs.existsSync('public/brand/stamp.svg'));
