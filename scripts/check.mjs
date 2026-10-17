@@ -360,23 +360,29 @@ assert.equal(fs.readFileSync('src/pages/experiences.astro', 'utf8').includes('st
 assert.equal(site.about.includes('TODO'), false);
 
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
-assert.equal(fs.existsSync('public/brand/stamp.svg'), false);
+assert.equal(fs.existsSync('public/brand/stamp.png'), false);
+assert.ok(fs.existsSync('public/brand/stamp.svg'));
+assert.ok(fs.existsSync('public/brand/logo.svg'));
 const logoPng = fs.readFileSync('public/brand/logo.png');
 assert.equal(logoPng.toString('ascii', 12, 16), 'IHDR');
-assert.equal(logoPng.readUInt32BE(16), 478);
-assert.equal(logoPng.readUInt32BE(20), 368);
-const stampPng = fs.readFileSync('public/brand/stamp.png');
-assert.equal(stampPng.toString('ascii', 12, 16), 'IHDR');
-assert.equal(stampPng.readUInt32BE(16), 552);
-assert.equal(stampPng.readUInt32BE(20), 714);
+assert.equal(logoPng.readUInt32BE(16), 1200);
+assert.equal(logoPng.readUInt32BE(20), 924);
 const ogPng = fs.readFileSync('public/brand/og.png');
 assert.equal(ogPng.toString('ascii', 12, 16), 'IHDR');
 assert.equal(ogPng.readUInt32BE(16), 1200);
 assert.equal(ogPng.readUInt32BE(20), 630);
+assert.ok(ogPng.length < 300 * 1024, 'og.png 超過 300KB');
+const fav = fs.readFileSync('public/favicon.png');
+assert.equal(fav.toString('ascii', 12, 16), 'IHDR');
+assert.equal(fav.readUInt32BE(16), 192);
+assert.equal(fav.readUInt32BE(20), 192);
+const fav32 = fs.readFileSync('public/favicon-32.png');
+assert.equal(fav32.readUInt32BE(16), 32);
+assert.equal(fav32.readUInt32BE(20), 32);
 for (const file of ['src/components/Header.astro', 'src/pages/index.astro']) {
   const text = fs.readFileSync(file, 'utf8');
-  assert.equal(text.includes('stamp.svg'), false, `${file} 仍指向舊郵票`);
-  assert.equal(text.includes('stamp.png'), true, `${file} 沒用裁切後的郵票`);
+  assert.equal(text.includes('stamp.svg'), true, `${file} 沒用向量郵票`);
+  assert.equal(text.includes('stamp.png'), false, `${file} 仍指向點陣郵票`);
   assert.equal(text.includes('logo.png'), false, `${file} 不該用完整標誌`);
 }
 assert.equal(fs.readFileSync('README.md', 'utf8').includes('public/brand/logo.png'), true);
