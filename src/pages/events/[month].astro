@@ -1,44 +1,92 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CalendarMonth from '../../components/CalendarMonth.astro';
+import EventDetail from '../../components/EventDetail.astro';
 import { monthsToBuild, parseMonth } from '../../lib/calendar.mjs';
 import { taipeiToday } from '../../lib/classify.mjs';
-import { loadEvents } from '../../lib/load';
+import { loadEvents, loadSite } from '../../lib/load';
+import { eventJsonLd, eventSummary } from '../../lib/signup.mjs';
+import { themeArt } from '../../lib/theme-art.mjs';
 import type { WorkshopEvent } from '../../lib/types';
 
 export async function getStaticPaths() {
   const events = await loadEvents();
   const today = taipeiToday();
-  return monthsToBuild(events, today).map((key: string) => ({
+  const monthPaths = monthsToBuild(events, today).map((key: string) => ({
     params: { month: key },
     props: { events, today },
   }));
+  const seen = new Set<string>();
+  const detailPaths = [];
+  for (const event of events) {
+    if (parseMonth(event.id)) {
+      console.warn(`[postea] 活動代號 ${event.id} 和月份網址撞名，略過獨立活動頁`);
+      continue;
+    }
+    if (seen.has(event.id)) {
+      console.warn(`[postea] 活動代號重複，略過後一筆：${event.id}`);
+      continue;
+    }
+    seen.add(event.id);
+    detailPaths.push({
+      params: { month: event.id },
+      props: { events, today, event },
+    });
+  }
+  return [...monthPaths, ...detailPaths];
 }
 
 interface Props {
   events: WorkshopEvent[];
   today: string;
+  event?: WorkshopEvent;
 }
 
-const { events, today } = Astro.props;
-const parsed = parseMonth(Astro.params.month ?? '');
-if (!parsed) throw new Error(`無法讀取月份：${Astro.params.month}`);
-const { year, month } = parsed;
+const { events, today, event } = Astro.props;
+const parsed = event ? null : parseMonth(Astro.params.month ?? '');
+if (!event && !parsed) throw new Error(`無法讀取：${Astro.params.month}`);
+const year = parsed?.year ?? 0;
+const month = parsed?.month ?? 0;
+const site = loadSite();
+const art = event ? themeArt(event) : null;
+const description = event
+  ? eventSummary(event)
+  : `Postèa 香語所 ${year}年${month}月的活動。看日期、地點、費用與報名。`;
+const jsonLdExtra = event ? eventJsonLd(event, site) : undefined;
+if (jsonLdExtra && art) {
+  const picture = art.custom || art.cover?.src;
+  if (picture) jsonLdExtra.image = new URL(picture, site.siteUrl).href;
+}
 ---
 
-<Base
-  title={`${year}年${month}月`}
-  description={`Postèa 香語所 ${year}年${month}月的活動。看日期、地點、費用與報名。`}
->
-  <div class="wrap">
-    <header class="page-head">
-      <p class="kicker">月曆</p>
-      <h1>月曆</h1>
-      <p class="lede">
-        這裡是每月主題調香的月曆。想一個人調，看<a href="/experiences">調香探索與體驗</a>。
-      </p>
-    </header>
+{
+  event ? (
+    <Base
+      title={event.title}
+      description={description}
+      jsonLdExtra={jsonLdExtra}
+      image={art?.share}
+      imageAlt={art?.alt}
+      imageWidth={art?.shareWidth}
+      imageHeight={art?.shareHeight}
+    >
+      <div class="wrap">
+        <EventDetail event={event} />
+      </div>
+    </Base>
+  ) : (
+    <Base title={`${year}年${month}月`} description={description}>
+      <div class="wrap">
+        <header class="page-head">
+          <p class="kicker">月曆</p>
+          <h1>月曆</h1>
+          <p class="lede">
+            這裡是每月主題調香的月曆。想一個人調，看<a href="/experiences">調香探索與體驗</a>。
+          </p>
+        </header>
 
-    <CalendarMonth events={events} today={today} year={year} month={month} />
-  </div>
-</Base>
+        <CalendarMonth events={events} today={today} year={year} month={month} />
+      </div>
+    </Base>
+  )
+}

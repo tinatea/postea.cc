@@ -3,6 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv } from './products.mjs';
+import { publishedOnly } from './signup.mjs';
 import type { CourseOffering, CoursePrice, NewsItem, Offerings, Recap, SiteConfig, WorkshopEvent } from './types';
 
 const root = process.cwd();
@@ -62,17 +63,25 @@ export function normalizeEvent(raw: Record<string, unknown>, index: number): Wor
     takeHome: asString(raw.takeHome),
     registrationUrl: asString(raw.registrationUrl),
     accentColor: ACCENT.test(accent) ? accent.toUpperCase() : undefined,
+    publishStatus: asString(raw.publishStatus),
+    signupStatus: asString(raw.signupStatus),
+    signupOpen: asString(raw.signupOpen),
+    signupClose: asString(raw.signupClose),
+    signupMethod: asString(raw.signupMethod),
+    coverImage: asString(raw.coverImage),
   };
 }
 
 function loadLocalEvents(): WorkshopEvent[] {
   const raw = readYaml('src/data/events.yml');
   const list = Array.isArray(raw) ? raw : [];
-  return list.flatMap((item, index) => {
-    if (!item || typeof item !== 'object') return [];
-    const event = normalizeEvent(item as Record<string, unknown>, index);
-    return event ? [event] : [];
-  });
+  return publishedOnly(
+    list.flatMap((item, index) => {
+      if (!item || typeof item !== 'object') return [];
+      const event = normalizeEvent(item as Record<string, unknown>, index);
+      return event ? [event] : [];
+    }),
+  );
 }
 
 const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
@@ -110,6 +119,18 @@ const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   報名: 'registrationUrl',
   accentcolor: 'accentColor',
   主題色: 'accentColor',
+  publishstatus: 'publishStatus',
+  發布狀態: 'publishStatus',
+  signupstatus: 'signupStatus',
+  報名狀態: 'signupStatus',
+  signupopen: 'signupOpen',
+  報名開放時間: 'signupOpen',
+  signupclose: 'signupClose',
+  報名截止時間: 'signupClose',
+  signupmethod: 'signupMethod',
+  報名方式: 'signupMethod',
+  coverimage: 'coverImage',
+  封面圖: 'coverImage',
 };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -207,8 +228,9 @@ async function loadEventsOnce(): Promise<WorkshopEvent[]> {
     const text = await fetchSheetCsv(sheetId, EVENTS_TAB);
     const parsed = parseEventsCsv(text);
     if (parsed.error) throw new Error(parsed.error);
-    console.warn(`[postea] 活動：使用 Google 試算表「${EVENTS_TAB}」（${parsed.events.length} 場）`);
-    return parsed.events;
+    const published = publishedOnly(parsed.events);
+    console.warn(`[postea] 活動：使用 Google 試算表「${EVENTS_TAB}」（${published.length} 場）`);
+    return published;
   } catch (error) {
     console.warn(`[postea] 活動：試算表讀取或格式有問題，改用 src/data/events.yml（${local.length} 場）。原因：${error}`);
     return local;

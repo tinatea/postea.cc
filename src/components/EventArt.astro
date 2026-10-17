@@ -1,0 +1,70 @@
+---
+import { imageSrcset, themeArt } from '../lib/theme-art.mjs';
+import type { WorkshopEvent } from '../lib/types';
+
+interface Props {
+  event: WorkshopEvent;
+  /** cover 是橫式封面。stamp 只用在畫面上不到 160px 寬的位置。 */
+  kind?: 'cover' | 'stamp';
+  priority?: boolean;
+}
+
+const { event, kind = 'cover', priority = false } = Astro.props;
+const art = themeArt(event);
+const coverSizes = '(min-width: 960px) 720px, calc(100vw - 2.5rem)';
+---
+
+{
+  art && kind === 'cover' && art.custom && (
+    <img
+      class="event-cover"
+      src={art.custom}
+      width="1600"
+      height="1000"
+      alt={art.alt}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding="async"
+      fetchpriority={priority ? 'high' : undefined}
+    />
+  )
+}
+{
+  art && kind === 'cover' && art.cover && (
+    <picture class="event-cover">
+      <source type="image/webp" srcset={imageSrcset(art.cover.webp)} sizes={coverSizes} />
+      <img
+        src={art.cover.src}
+        srcset={imageSrcset(art.cover.png)}
+        sizes={coverSizes}
+        width={art.cover.width}
+        height={art.cover.height}
+        alt={art.alt}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchpriority={priority ? 'high' : undefined}
+      />
+    </picture>
+  )
+}
+{
+  art && kind === 'stamp' && art.simple && (
+    <picture class="event-stamp">
+      <source type="image/webp" srcset={imageSrcset(art.simple.webp)} sizes="72px" />
+      <img
+        src={art.simple.src}
+        srcset={imageSrcset(art.simple.png)}
+        sizes="72px"
+        width={art.simple.width}
+        height={art.simple.height}
+        alt={art.alt}
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+  )
+}
+{
+  art && kind === 'stamp' && !art.simple && art.custom && (
+    <img class="event-stamp" src={art.custom} width="160" height="213" alt={art.alt} loading="lazy" decoding="async" />
+  )
+}

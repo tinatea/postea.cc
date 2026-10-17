@@ -1,0 +1,72 @@
+---
+import { LINE_NOTE, resolveSignup } from '../lib/signup.mjs';
+import { loadSite } from '../lib/load';
+import type { WorkshopEvent } from '../lib/types';
+
+interface Props {
+  event: WorkshopEvent;
+  featured?: boolean;
+  showCalendarLink?: boolean;
+}
+
+const { event, featured = false, showCalendarLink = false } = Astro.props;
+const site = loadSite();
+const signup = resolveSignup(event);
+const large = featured ? 'button-large' : undefined;
+const lineLabel = signup.action === 'line-register' ? '用 LINE 報名' : 'LINE 詢問';
+const showLine = Boolean(site.lineUrl) && (signup.action === 'line-ask' || signup.action === 'line-register');
+const showForm = signup.action === 'form';
+const showOthersButton = signup.status === '已額滿';
+const showRecent = signup.status === '已結束';
+const showOthersLink = signup.status === '報名截止' || signup.status === '已取消';
+---
+
+<div class="event-actions">
+  {
+    showLine && (
+      <a class:list={['button', large]} href={site.lineUrl} rel="noopener noreferrer">
+        {lineLabel}
+        {site.lineId && <span class="line-id">{site.lineId}</span>}
+      </a>
+    )
+  }
+  {
+    showForm && (
+      <a class:list={['button', large]} href={signup.url} target="_blank" rel="noopener noreferrer">
+        前往報名
+        <span class="sr-only">（在新視窗開啟報名表）</span>
+      </a>
+    )
+  }
+  {
+    showOthersButton && (
+      <a class:list={['button', 'button-secondary', large]} href="/events">
+        查看其他場次
+      </a>
+    )
+  }
+  {
+    showRecent && (
+      <a class:list={['button', 'button-secondary', large]} href="/events">
+        查看近期活動
+      </a>
+    )
+  }
+  {
+    showOthersLink && (
+      <a class="text-link" href="/events">
+        查看其他場次
+      </a>
+    )
+  }
+  {
+    showCalendarLink && (
+      <a class="text-link" href={`/events#${event.id}`}>
+        在行事曆中查看
+      </a>
+    )
+  }
+  {showLine && <p class="signup-note">{LINE_NOTE}</p>}
+  {showForm && <p class="signup-note">這個按鈕會前往外部報名頁面。</p>}
+  {signup.openLabel && <p class="signup-when">{signup.openLabel}</p>}
+</div>

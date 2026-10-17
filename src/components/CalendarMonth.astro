@@ -1,6 +1,10 @@
 ---
 import Icon from './Icon.astro';
-import { formatEventDate, formatTimeRange, isPastEvent } from '../lib/classify.mjs';
+import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { resolveSignup } from '../lib/signup.mjs';
+import EventArt from './EventArt.astro';
+import SignupActions from './SignupActions.astro';
+import { themeArt } from '../lib/theme-art.mjs';
 import {
   buildMonthGrid,
   eventsInMonth,
@@ -8,8 +12,8 @@ import {
   monthKey,
   shiftMonth,
   shortEventName,
+  monthsToBuild,
 } from '../lib/calendar.mjs';
-import { loadSite } from '../lib/load';
 import type { WorkshopEvent } from '../lib/types';
 
 interface Props {
@@ -20,7 +24,6 @@ interface Props {
 }
 
 const { events, today, year, month } = Astro.props;
-const site = loadSite();
 const key = monthKey(year, month);
 const monthEvents = eventsInMonth(events, key) as WorkshopEvent[];
 const grid = buildMonthGrid(year, month);
@@ -37,18 +40,38 @@ const todayDay = today.startsWith(`${key}-`) ? Number(today.slice(8, 10)) : 0;
 const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 const prev = shiftMonth(year, month, -1);
 const next = shiftMonth(year, month, 1);
-const pillInk = '#1A1A1A';
+const builtMonths = new Set(monthsToBuild(events, today));
+const prevKey = monthKey(prev.year, prev.month);
+const nextKey = monthKey(next.year, next.month);
+const pillOnTheme = 'var(--theme-ink)';
+const pillOnSage = '#ffffff';
 ---
 
 <section class="stamp calendar-card" aria-label={`${year}年${month}月`}>
   <div class="month-bar">
-    <a class="month-switch" href={monthHref(monthKey(prev.year, prev.month))} aria-label="上個月">
-      <Icon name="caret-left" />
-    </a>
+    {
+      builtMonths.has(prevKey) ? (
+        <a class="month-switch" href={monthHref(prevKey)} aria-label="上個月">
+          <Icon name="caret-left" />
+        </a>
+      ) : (
+        <span class="month-switch is-disabled" aria-hidden="true">
+          <Icon name="caret-left" />
+        </span>
+      )
+    }
     <h2>{year}年{month}月</h2>
-    <a class="month-switch" href={monthHref(monthKey(next.year, next.month))} aria-label="下個月">
-      <Icon name="caret-right" />
-    </a>
+    {
+      builtMonths.has(nextKey) ? (
+        <a class="month-switch" href={monthHref(nextKey)} aria-label="下個月">
+          <Icon name="caret-right" />
+        </a>
+      ) : (
+        <span class="month-switch is-disabled" aria-hidden="true">
+          <Icon name="caret-right" />
+        </span>
+      )
+    }
   </div>
   <table class="cal">
     <thead>
@@ -67,7 +90,7 @@ const pillInk = '#1A1A1A';
                   {day && dayEvents.length === 1 && (
                     <a
                       class:list={['cal-day', { 'is-today': day === todayDay }]}
-                      href={`#${dayEvents[0].id}`}
+                      href={`/events/${dayEvents[0].id}/`}
                     >
                       <span class="cal-num">
                         {day}
@@ -76,7 +99,7 @@ const pillInk = '#1A1A1A';
                       <span class="cal-mark">
                         <span
                           class="cal-pill"
-                          style={`background:${dayEvents[0].accentColor || 'var(--color-sage)'};color:${pillInk}`}
+                          style={`background:${dayEvents[0].accentColor || 'var(--color-sage)'};color:${dayEvents[0].accentColor ? pillOnTheme : pillOnSage}`}
                         >
                           {shortEventName(dayEvents[0].title)}
                         </span>
@@ -85,7 +108,7 @@ const pillInk = '#1A1A1A';
                           style={`background:${dayEvents[0].accentColor || 'var(--color-sage)'}`}
                           aria-hidden="true"
                         />
-                        <span class="sr-only">到下面的活動</span>
+                        <span class="sr-only">{shortEventName(dayEvents[0].title)}，查看活動</span>
                       </span>
                     </a>
                   )}
@@ -96,10 +119,10 @@ const pillInk = '#1A1A1A';
                         {day === todayDay && <span class="sr-only">（今天）</span>}
                       </span>
                       {dayEvents.map((event) => (
-                        <a class="cal-mark" href={`#${event.id}`}>
+                        <a class="cal-mark" href={`/events/${event.id}/`}>
                           <span
                             class="cal-pill"
-                            style={`background:${event.accentColor || 'var(--color-sage)'};color:${pillInk}`}
+                            style={`background:${event.accentColor || 'var(--color-sage)'};color:${event.accentColor ? pillOnTheme : pillOnSage}`}
                           >
                             {shortEventName(event.title)}
                           </span>
@@ -108,7 +131,7 @@ const pillInk = '#1A1A1A';
                             style={`background:${event.accentColor || 'var(--color-sage)'}`}
                             aria-hidden="true"
                           />
-                          <span class="sr-only">{shortEventName(event.title)}，到下面的活動</span>
+                          <span class="sr-only">{shortEventName(event.title)}，查看活動</span>
                         </a>
                       ))}
                     </div>
@@ -132,42 +155,31 @@ const pillInk = '#1A1A1A';
       <p class="empty">這個月還沒有安排活動。</p>
     ) : (
       monthEvents.map((event) => {
-        const past = isPastEvent(event.date, today);
         const time = formatTimeRange(event.startTime, event.endTime);
+        const signup = resolveSignup(event);
+        const art = themeArt(event);
         const [, monthNumber, dayNumber] = event.date.split('-');
         return (
           <article class="month-item" id={event.id}>
-            <div class="stamp date-stamp" aria-hidden="true">
-              <span class="date-stamp-mon">{Number(monthNumber)}月</span>
-              <span class="date-stamp-day">{Number(dayNumber)}</span>
-            </div>
+            {
+              art?.simple || art?.custom ? (
+                <EventArt event={event} kind="stamp" />
+              ) : (
+                <div class="stamp date-stamp" aria-hidden="true">
+                  <span class="date-stamp-mon">{Number(monthNumber)}月</span>
+                  <span class="date-stamp-day">{Number(dayNumber)}</span>
+                </div>
+              )
+            }
             <div>
-              <h3 class="month-item-title">{event.title}</h3>
+              <h3 class="month-item-title">
+                <a href={`/events/${event.id}/`}>{event.title}</a>
+              </h3>
+              <p class="signup-status" role="status">{signup.status}</p>
               <p class="month-when">{formatEventDate(event.date)}{time && `　${time}`}</p>
               {event.venue && <p>{event.venue}</p>}
               {event.price && <p class="month-price">{event.price}</p>}
-              <div class="event-actions">
-                {past ? (
-                  <p class="past-mark">已結束</p>
-                ) : event.registrationUrl ? (
-                  <a class="button" href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
-                    報名
-                    <span class="sr-only">（在新視窗開啟報名表）</span>
-                  </a>
-                ) : (
-                  <p class="pending" role="status">報名即將開放</p>
-                )}
-                {!past && site.lineUrl && (
-                  <a
-                    class:list={[event.registrationUrl ? 'button-ghost' : 'button']}
-                    href={site.lineUrl}
-                    rel="noopener noreferrer"
-                  >
-                    LINE 詢問
-                    {site.lineId && <span class="line-id">{site.lineId}</span>}
-                  </a>
-                )}
-              </div>
+              <SignupActions event={event} />
             </div>
           </article>
         );

@@ -9,21 +9,30 @@ interface Props {
   title: string;
   description: string;
   home?: boolean;
+  jsonLdExtra?: object;
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
 }
 
-const { title, description, home = false } = Astro.props;
+const { title, description, home = false, jsonLdExtra, image: imagePath, imageAlt, imageWidth, imageHeight } = Astro.props;
 const site = loadSite();
 const path = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '') || '/';
 const canonical = new URL(path, Astro.site ?? site.siteUrl).href;
 const documentTitle = home ? `${site.name}｜${site.tagline}` : `${title}｜${site.name}`;
-const image = new URL('/brand/og.png', Astro.site ?? site.siteUrl).href;
+const brandImage = new URL('/brand/og.png', Astro.site ?? site.siteUrl).href;
+const image = imagePath
+  ? new URL(imagePath, Astro.site ?? site.siteUrl).href
+  : brandImage;
+const shareAlt = imageAlt || 'Postèa 香語所標誌';
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
   name: site.name,
   description: site.bio,
   url: site.siteUrl,
-  image,
+  image: brandImage,
   address: {
     '@type': 'PostalAddress',
     addressLocality: '台北市',
@@ -49,11 +58,14 @@ const jsonLd = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
-    <meta property="og:image:alt" content="Postèa 香語所標誌" />
-    <meta name="twitter:card" content="summary" />
+    {imageWidth && <meta property="og:image:width" content={String(imageWidth)} />}
+    {imageHeight && <meta property="og:image:height" content={String(imageHeight)} />}
+    <meta property="og:image:alt" content={shareAlt} />
+    <meta name="twitter:card" content={imagePath ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:title" content={documentTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={shareAlt} />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/favicon.png" />
@@ -64,6 +76,7 @@ const jsonLd = {
       rel="stylesheet"
     />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {jsonLdExtra && <script type="application/ld+json" set:html={JSON.stringify(jsonLdExtra)} />}
   </head>
   <body>
     <a class="skip" href="#main">跳到主要內容</a>
