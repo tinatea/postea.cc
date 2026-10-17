@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/brand/stamp.svg" alt="Postèa 香語所" width="160" />
+  <img src="public/brand/logo.png" alt="Postèa 香語所" width="160" height="123" />
 </p>
 
 # Postèa 香語所

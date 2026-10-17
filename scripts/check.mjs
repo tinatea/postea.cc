@@ -360,8 +360,19 @@ assert.equal(fs.readFileSync('src/pages/experiences.astro', 'utf8').includes('st
 assert.equal(site.about.includes('TODO'), false);
 
 assert.equal(fs.readFileSync('public/CNAME', 'utf8').trim(), 'postea.cc');
-assert.ok(fs.existsSync('public/brand/stamp.svg'));
-assert.ok(fs.existsSync('public/brand/logo.png'));
+assert.equal(fs.existsSync('public/brand/stamp.svg'), false);
+const logoPng = fs.readFileSync('public/brand/logo.png');
+assert.equal(logoPng.toString('ascii', 12, 16), 'IHDR');
+assert.equal(logoPng.readUInt32BE(16), 478);
+assert.equal(logoPng.readUInt32BE(20), 368);
+const ogPng = fs.readFileSync('public/brand/og.png');
+assert.equal(ogPng.toString('ascii', 12, 16), 'IHDR');
+assert.equal(ogPng.readUInt32BE(16), 1200);
+assert.equal(ogPng.readUInt32BE(20), 630);
+for (const file of ['src/components/Header.astro', 'src/pages/index.astro', 'README.md']) {
+  assert.equal(fs.readFileSync(file, 'utf8').includes('stamp.svg'), false, `${file} 仍指向舊郵票`);
+  assert.equal(fs.readFileSync(file, 'utf8').includes('logo.png'), true, `${file} 沒用新標誌`);
+}
 assert.ok(fs.existsSync('content/recaps/_example.md'));
 
 console.log('check ok');
