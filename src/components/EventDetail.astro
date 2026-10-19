@@ -51,6 +51,22 @@ const facts = [
                 </span>
               )
             }
+            {
+              label === '地點' && place?.photos?.length > 0 && (
+                <span class="venue-photos">
+                  {place.photos.map((photo) => (
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      width={photo.width}
+                      height={photo.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
+                </span>
+              )
+            }
           </dd>
         </div>
       ))

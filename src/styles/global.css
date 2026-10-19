@@ -616,6 +616,34 @@ main {
   max-width: 22rem;
 }
 
+.event-detail .meta,
+.event-detail .meta div {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.venue-photos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.venue-photos img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.35rem;
+}
+
+@media (min-width: 720px) {
+  .venue-photos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .pet-note {
   margin: 0 0 1rem;
   max-width: 40rem;
