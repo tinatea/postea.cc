@@ -1,7 +1,8 @@
 ---
 import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
-import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { formatEventDate } from '../lib/classify.mjs';
+import { compactTime } from '../lib/schedule.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
 import type { WorkshopEvent } from '../lib/types';
 
@@ -13,7 +14,7 @@ interface Props {
 const { event, featured = false } = Astro.props;
 const signup = resolveSignup(event);
 const when = formatEventDate(event.date);
-const time = formatTimeRange(event.startTime, event.endTime);
+const time = compactTime(event);
 const facts = [
   ['日期', when],
   ['時間', time],

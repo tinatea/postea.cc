@@ -22,7 +22,8 @@ function themeWhen(event: WorkshopEvent) {
     timeZone: 'Asia/Taipei',
     weekday: 'short',
   }).format(new Date(`${event.date}T12:00:00+08:00`));
-  return `${Number(month)}.${day} ${weekday}. ${event.startTime}`;
+  const clock = event.doorTime || event.startTime;
+  return `${Number(month)}.${day} ${weekday}. ${clock}`;
 }
 
 const exploreTags = [explore.duration, explore.takeHome].filter(Boolean);

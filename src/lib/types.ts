@@ -4,6 +4,9 @@ export type WorkshopEvent = {
   date: string;
   startTime: string;
   endTime: string;
+  doorTime: string;
+  schedule: string;
+  timeNote: string;
   venue: string;
   price: string;
   capacity: string;

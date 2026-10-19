@@ -1,7 +1,8 @@
 ---
 import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
-import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { formatEventDate } from '../lib/classify.mjs';
+import { detailTime } from '../lib/schedule.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
 import { venueNote } from '../lib/venues.mjs';
 import type { WorkshopEvent } from '../lib/types';
@@ -14,7 +15,7 @@ const { event } = Astro.props;
 const signup = resolveSignup(event);
 const place = venueNote(event.venue);
 const when = formatEventDate(event.date);
-const time = formatTimeRange(event.startTime, event.endTime);
+const time = detailTime(event);
 const facts = [
   ['日期', when],
   ['時間', time],
@@ -38,6 +39,7 @@ const facts = [
           <dt>{label}</dt>
           <dd>
             {value}
+            {label === '時間' && event.timeNote && <span class="time-note">{event.timeNote}</span>}
             {
               label === '地點' && place && (
                 <span class="venue-more">

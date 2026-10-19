@@ -3,6 +3,7 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { marked } from 'marked';
 import { parseCsv } from './products.mjs';
+import { parseEventTimes } from './schedule.mjs';
 import { publishedOnly } from './signup.mjs';
 import type { CourseOffering, CoursePrice, NewsItem, Offerings, Recap, SiteConfig, WorkshopEvent } from './types';
 
@@ -50,12 +51,16 @@ export function normalizeEvent(raw: Record<string, unknown>, index: number): Wor
   if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
   const accent = asString(raw.accentColor);
   const id = asString(raw.id) || `event-${date}-${index + 1}`;
+  const times = parseEventTimes(raw);
   return {
     id: id.replace(/\s+/g, '-'),
     title,
     date,
-    startTime: asString(raw.startTime),
-    endTime: asString(raw.endTime),
+    startTime: times.startTime,
+    endTime: times.endTime,
+    doorTime: times.doorTime,
+    schedule: times.schedule,
+    timeNote: times.timeNote,
     venue: asString(raw.venue),
     price: asString(raw.price),
     capacity: asString(raw.capacity),
@@ -100,6 +105,10 @@ const HEADER_ALIAS: Record<string, keyof WorkshopEvent> = {
   endtime: 'endTime',
   結束: 'endTime',
   結束時間: 'endTime',
+  time: 'schedule',
+  時間: 'schedule',
+  doortime: 'doorTime',
+  timenote: 'timeNote',
   venue: 'venue',
   地點: 'venue',
   price: 'price',
@@ -162,7 +171,7 @@ export function parseEventsCsv(text: string): { events: WorkshopEvent[]; error: 
     const date = asString(record.date);
     if (!title) return { events: [], error: `活動表第 ${rowNumber} 列沒有活動名稱` };
     if (!DATE_RE.test(date)) {
-      return { events: [], error: `活動表第 ${rowNumber} 列的日期要寫成 2026-11-21，現在是「${date}」` };
+      return { events: [], error: `活動表第 ${rowNumber} 列的日期要寫成 2026-11-22，現在是「${date}」` };
     }
     const accent = asString(record.accentColor);
     if (accent && !ACCENT.test(accent)) {

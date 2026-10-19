@@ -20,9 +20,12 @@ const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
 assert.ok(Array.isArray(events) && events.length >= 1, 'events.yml 至少要有一場');
 
 const first = events[0];
-assert.equal(first.date, '2026-11-21');
-assert.equal(first.startTime, '14:00');
-assert.equal(first.endTime, '16:15');
+assert.equal(first.date, '2026-11-22');
+assert.equal(first.startTime, '14:30');
+assert.equal(first.endTime, '16:30');
+assert.equal(first.doorTime, '14:00');
+assert.equal(first.schedule, '14:00 開放入場｜14:30 開始｜預計 16:30 結束');
+assert.equal(first.timeNote, '結束後可留在現場交流到 17:30');
 assert.equal(first.registrationUrl, '');
 assert.equal(first.accentColor, '#D9A441');
 assert.equal(first.venue, '士林 凹屋珈琲（寵物友善）');
@@ -58,9 +61,10 @@ assert.deepEqual(
   ['old'],
 );
 assert.equal(formatEventDate('2026-11-21'), '2026年11月21日（六）');
+assert.equal(formatEventDate('2026-11-22'), '2026年11月22日（日）');
 
-const moved = splitEvents([{ date: '2026-11-21', startTime: '14:00', title: 'osmanthus' }], '2026-11-22');
-assert.equal(moved.past[0].title, 'osmanthus');
+const moved = splitEvents([{ date: '2026-11-21', startTime: '14:00', title: 'boundary' }], '2026-11-22');
+assert.equal(moved.past[0].title, 'boundary');
 assert.equal(moved.upcoming.length, 0);
 
 assert.equal(fs.existsSync('src/data/products.csv'), false);
@@ -82,6 +86,20 @@ assert.equal(sheetLiveShape.error, null);
 assert.equal(sheetLiveShape.events[0].id, 'id-1');
 assert.equal(sheetLiveShape.events[0].takeHome, '');
 assert.match(sheetLiveShape.events[0].description, /第一段\n\n第二段/);
+const freeTime = parseEventsCsv(
+  '活動名稱,日期,開始時間,結束時間\n測試場,2026-11-22,"14:00 開放入場｜14:30 開始｜預計 16:30 結束\n結束後可留在現場交流到 17:30",16:15\n',
+);
+assert.equal(freeTime.error, null);
+assert.equal(freeTime.events[0].doorTime, '14:00');
+assert.equal(freeTime.events[0].startTime, '14:30');
+assert.equal(freeTime.events[0].endTime, '16:30');
+assert.equal(freeTime.events[0].schedule, '14:00 開放入場｜14:30 開始｜預計 16:30 結束');
+assert.equal(freeTime.events[0].timeNote, '結束後可留在現場交流到 17:30');
+const timeColumn = parseEventsCsv('活動名稱,日期,時間\n測試場,2026-12-01,14:00–16:30\n');
+assert.equal(timeColumn.error, null);
+assert.equal(timeColumn.events[0].startTime, '14:00');
+assert.equal(timeColumn.events[0].endTime, '16:30');
+assert.equal(timeColumn.events[0].schedule, '');
 const badAccent = parseEventsCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n');
 assert.match(badAccent.error, /主題色/);
 assert.equal(eventsFromCsv('活動名稱,日期,主題色\n測試場,2026-12-01,#GGG\n').length, 0);
@@ -99,7 +117,11 @@ assert.match(parseNewsCsv('日期,標題,內文,連結,圖片連結,顯示\n2026
 
 const news = yaml.load(fs.readFileSync('src/data/news.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
 assert.equal(news[0].date, '2026-10-16');
-assert.equal(news[0].title, '第一場主題小聚「晚寄的桂花」11/21 登場');
+assert.equal(news[0].title, '第一場主題小聚「晚寄的桂花」11/22 登場');
+assert.match(news[0].body, /2026-11-22（日）/);
+assert.match(news[0].body, /14:00 開放入場，14:30 開始，預計 16:30 結束/);
+assert.equal(news[0].body.includes('2026-11-21'), false);
+assert.equal(news[0].body.includes('16:15'), false);
 assert.match(news[0].link, /postea\.cc\/events/);
 assert.match(news[0].body, /限額 10 人，確定開課/);
 assert.match(news[0].body, /士林 凹屋珈琲（寵物友善）/);
@@ -202,9 +224,12 @@ const at = (iso) => new Date(iso);
 const session = {
   id: 'osmanthus-tea-room-2026-11',
   title: '晚寄的桂花',
-  date: '2026-11-21',
-  startTime: '14:00',
-  endTime: '16:15',
+  date: '2026-11-22',
+  startTime: '14:30',
+  endTime: '16:30',
+  doorTime: '14:00',
+  schedule: '14:00 開放入場｜14:30 開始｜預計 16:30 結束',
+  timeNote: '結束後可留在現場交流到 17:30',
   venue: '士林 凹屋珈琲（寵物友善）',
   price: 'NT$1,000／人（附一杯桂花飲品）',
   capacity: '限額 10 人，確定開課',
@@ -214,9 +239,9 @@ assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).status, '�
 assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).action, 'line-ask');
 assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).openLabel, '開放時間待公布');
 assert.equal(resolveSignup({ ...session, signupStatus: '已取消' }, at('2026-12-01T12:00:00+08:00')).status, '已取消');
-assert.equal(resolveSignup(session, at('2026-11-21T16:15:00+08:00')).status, '已結束');
-assert.equal(resolveSignup(session, at('2026-11-21T14:00:00+08:00')).status, '報名截止');
-assert.equal(resolveSignup(session, at('2026-11-21T13:59:00+08:00')).status, '即將開放');
+assert.equal(resolveSignup(session, at('2026-11-22T16:30:00+08:00')).status, '已結束');
+assert.equal(resolveSignup(session, at('2026-11-22T14:30:00+08:00')).status, '報名截止');
+assert.equal(resolveSignup(session, at('2026-11-22T14:29:00+08:00')).status, '即將開放');
 const openWindow = {
   signupStatus: '報名中',
   signupOpen: '2026-11-01 10:00',
@@ -269,10 +294,10 @@ assert.equal(
       ...session,
       signupStatus: '報名中',
       signupOpen: '2026-11-01',
-      signupClose: '2026-11-21 18:00',
+      signupClose: '2026-11-22 18:00',
       registrationUrl: 'https://forms.gle/abc',
     },
-    at('2026-11-21T17:00:00+08:00'),
+    at('2026-11-22T17:00:00+08:00'),
   ).status,
   '已結束',
 );
@@ -306,6 +331,9 @@ assert.deepEqual(
 assert.equal(publishedOnly([{ title: '秘密', publishStatus: '秘密' }]).length, 1);
 const detailLd = eventJsonLd(session, { siteUrl: 'https://postea.cc', name: 'Postèa 香語所' }, at('2026-10-16T12:00:00+08:00'));
 assert.equal(detailLd.url, 'https://postea.cc/events/osmanthus-tea-room-2026-11/');
+assert.equal(detailLd.startDate, '2026-11-22T14:30:00+08:00');
+assert.equal(detailLd.doorTime, '2026-11-22T14:00:00+08:00');
+assert.equal(detailLd.endDate, '2026-11-22T16:30:00+08:00');
 assert.equal(JSON.stringify(detailLd).includes('streetAddress'), false);
 assert.equal(detailLd.offers, undefined);
 const selling = eventJsonLd(

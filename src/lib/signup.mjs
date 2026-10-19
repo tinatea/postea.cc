@@ -1,4 +1,5 @@
-import { formatEventDate, formatTimeRange } from './classify.mjs';
+import { formatEventDate } from './classify.mjs';
+import { detailTime } from './schedule.mjs';
 
 export const LINE_NOTE = '開啟 LINE 不代表報名完成，以工作室確認為準';
 
@@ -151,7 +152,7 @@ export function isPromoted(event, now = new Date()) {
 /** @param {{ title?: string, date: string, startTime?: string, endTime?: string, venue?: string, price?: string }} event */
 export function eventSummary(event) {
   const when = formatEventDate(event.date);
-  const time = formatTimeRange(event.startTime || '', event.endTime || '');
+  const time = detailTime(event);
   const schedule = [when, time].filter(Boolean).join(' ');
   return [event.title, schedule, event.venue, event.price].filter(Boolean).join('，');
 }
@@ -184,6 +185,8 @@ export function eventJsonLd(event, site, now = new Date()) {
   };
   const startClock = clockOf(event.startTime);
   data.startDate = startClock ? `${event.date}T${startClock}+08:00` : event.date;
+  const doorClock = clockOf(event.doorTime);
+  if (doorClock) data.doorTime = `${event.date}T${doorClock}+08:00`;
   const end = explicitEndStamp(event);
   if (end) data.endDate = `${end}+08:00`;
   if (event.venue) {

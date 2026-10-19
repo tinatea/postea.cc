@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
-import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
+import { formatEventDate } from '../lib/classify.mjs';
+import { compactTime } from '../lib/schedule.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
 import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
@@ -155,7 +156,7 @@ const pillOnSage = '#ffffff';
       <p class="empty">這個月還沒有安排活動。</p>
     ) : (
       monthEvents.map((event) => {
-        const time = formatTimeRange(event.startTime, event.endTime);
+        const time = compactTime(event);
         const signup = resolveSignup(event);
         const art = themeArt(event);
         const [, monthNumber, dayNumber] = event.date.split('-');
