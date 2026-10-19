@@ -3,6 +3,7 @@ import EventArt from './EventArt.astro';
 import SignupActions from './SignupActions.astro';
 import { formatEventDate, formatTimeRange } from '../lib/classify.mjs';
 import { resolveSignup } from '../lib/signup.mjs';
+import { venueNote } from '../lib/venues.mjs';
 import type { WorkshopEvent } from '../lib/types';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 const { event } = Astro.props;
 const signup = resolveSignup(event);
+const place = venueNote(event.venue);
 const when = formatEventDate(event.date);
 const time = formatTimeRange(event.startTime, event.endTime);
 const facts = [
@@ -34,11 +36,32 @@ const facts = [
       facts.map(([label, value]) => (
         <div>
           <dt>{label}</dt>
-          <dd>{value}</dd>
+          <dd>
+            {value}
+            {
+              label === '地點' && place && (
+                <span class="venue-more">
+                  <span>{place.address}</span>
+                  <span>{place.transit}</span>
+                  <a class="text-link" href={place.mapUrl} target="_blank" rel="noopener noreferrer">
+                    {place.mapLabel}
+                  </a>
+                </span>
+              )
+            }
+          </dd>
         </div>
       ))
     }
   </dl>
+  {
+    place && (
+      <p class="pet-note">
+        {place.pet}
+        <span class="pet-care">{place.petCare}</span>
+      </p>
+    )
+  }
   <SignupActions event={event} featured showCalendarLink />
   {event.description && <p class="event-copy">{event.description}</p>}
   {

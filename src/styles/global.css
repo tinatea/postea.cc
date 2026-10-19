@@ -599,6 +599,25 @@ main {
   margin: 0;
 }
 
+.venue-more {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+  max-width: 22rem;
+}
+
+.pet-note {
+  margin: 0 0 1rem;
+  max-width: 40rem;
+}
+
+.pet-care {
+  display: block;
+  margin-top: 0.3rem;
+}
+
 .event-copy {
   white-space: pre-line;
   max-width: 42rem;
@@ -729,11 +748,24 @@ main {
   padding: 0.4rem 0.15rem;
 }
 
+.price-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  min-width: 0;
+}
+
 .price-row strong {
   font-size: 1.7rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: nowrap;
+}
+
+.price-note {
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .price-row small {

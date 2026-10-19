@@ -220,6 +220,10 @@ export function loadEvents(): Promise<WorkshopEvent[]> {
 async function loadEventsOnce(): Promise<WorkshopEvent[]> {
   const local = loadLocalEvents();
   const sheetId = loadSite().sheetId;
+  if (process.env.POSTEA_LOCAL_DATA === '1') {
+    console.warn(`[postea] 活動：POSTEA_LOCAL_DATA=1，使用 src/data/events.yml（${local.length} 場）`);
+    return local;
+  }
   if (!sheetId) {
     console.warn(`[postea] 活動：沒有填 sheetId，使用 src/data/events.yml（${local.length} 場）`);
     return local;
@@ -341,6 +345,10 @@ export function loadNews(): Promise<NewsItem[]> {
 async function loadNewsOnce(): Promise<NewsItem[]> {
   const local = loadLocalNews();
   const sheetId = loadSite().sheetId;
+  if (process.env.POSTEA_LOCAL_DATA === '1') {
+    console.warn(`[postea] 最新消息：POSTEA_LOCAL_DATA=1，使用 src/data/news.yml（${local.length} 則）`);
+    return local;
+  }
   if (!sheetId) {
     console.warn(`[postea] 最新消息：沒有填 sheetId，使用 src/data/news.yml（${local.length} 則）`);
     return local;
@@ -379,7 +387,7 @@ function loadPrices(raw: unknown): CoursePrice[] {
     const label = asString(record.label);
     const amount = asString(record.amount);
     if (!label || !amount) return [];
-    return [{ label, amount, each: asString(record.each) }];
+    return [{ label, amount, each: asString(record.each), note: asString(record.note) }];
   });
 }
 

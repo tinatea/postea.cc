@@ -48,6 +48,7 @@ export type CoursePrice = {
   label: string;
   amount: string;
   each: string;
+  note: string;
 };
 
 export type CourseOffering = {

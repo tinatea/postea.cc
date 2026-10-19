@@ -12,6 +12,7 @@ import {
   resolveSignup,
 } from '../src/lib/signup.mjs';
 import { themeArt } from '../src/lib/theme-art.mjs';
+import { venueNote } from '../src/lib/venues.mjs';
 
 const events = yaml.load(fs.readFileSync('src/data/events.yml', 'utf8'), {
   schema: yaml.JSON_SCHEMA,
@@ -24,13 +25,14 @@ assert.equal(first.startTime, '14:00');
 assert.equal(first.endTime, '16:15');
 assert.equal(first.registrationUrl, '');
 assert.equal(first.accentColor, '#D9A441');
-assert.equal(first.venue, '台北市｜捷運南京復興站旁（詳細地址報名後通知）');
-assert.equal(first.price, 'NT$800／人');
+assert.equal(first.venue, '士林 凹屋珈琲（寵物友善）');
+assert.equal(first.price, 'NT$1,000／人（附一杯桂花飲品）');
 assert.equal(first.capacity, '限額 10 人，確定開課');
 assert.equal(first.id, 'osmanthus-tea-room-2026-11');
 assert.equal(first.title, '「晚寄的桂花」每月主題調香小聚 #1');
 assert.match(first.description, /秋天的桂花到了尾聲，晚了一點寄給妳。/);
-assert.match(first.description, /Tina 會帶大家一支一支聞香、講解，中場一起喝一壺桂花烏龍，分享彼此調出的茶室。/);
+assert.match(first.description, /入座先喝一口店裡的桂花飲品，再開始調香/);
+assert.equal(first.description.includes('桂花烏龍'), false);
 assert.match(first.takeHome, /10ml/);
 assert.match(first.takeHome, /配方卡/);
 
@@ -65,7 +67,7 @@ assert.equal(fs.existsSync('src/data/products.csv'), false);
 assert.equal(fs.existsSync('src/components/Offerings.astro'), false);
 
 const sheet = eventsFromCsv(
-  '標題,日期,開始時間,結束時間,地點,價格,人數,說明,帶走,報名連結,主題色\n測試場,2026-12-01,14:00,16:00,台北,NT$800／人,限額 10 人，確定開課,說明,一瓶,,#D9A441\n',
+  '標題,日期,開始時間,結束時間,地點,價格,人數,說明,帶走,報名連結,主題色\n測試場,2026-12-01,14:00,16:00,台北,"NT$1,000／人",限額 10 人，確定開課,說明,一瓶,,#D9A441\n',
 );
 assert.equal(sheet.length, 1);
 assert.equal(sheet[0].title, '測試場');
@@ -74,7 +76,7 @@ assert.equal(sheet[0].accentColor, '#D9A441');
 assert.equal(eventsFromCsv('not,a,header\nx,y,z\n').length, 0);
 
 const sheetLiveShape = parseEventsCsv(
-  '"活動代號","活動名稱","日期","開始時間","結束時間","地點","費用","人數","帶走的東西","報名連結","主題色","活動介紹","備註"\n"id-1","測試場","2026-12-01","14:00","16:00","台北","NT$800／人","限額 10 人，確定開課","","","#D9A441","第一段\n\n第二段","忽略"\n',
+  '"活動代號","活動名稱","日期","開始時間","結束時間","地點","費用","人數","帶走的東西","報名連結","主題色","活動介紹","備註"\n"id-1","測試場","2026-12-01","14:00","16:00","台北","NT$1,000／人","限額 10 人，確定開課","","","#D9A441","第一段\n\n第二段","忽略"\n',
 );
 assert.equal(sheetLiveShape.error, null);
 assert.equal(sheetLiveShape.events[0].id, 'id-1');
@@ -100,6 +102,8 @@ assert.equal(news[0].date, '2026-10-16');
 assert.equal(news[0].title, '第一場主題小聚「晚寄的桂花」11/21 登場');
 assert.match(news[0].link, /postea\.cc\/events/);
 assert.match(news[0].body, /限額 10 人，確定開課/);
+assert.match(news[0].body, /士林 凹屋珈琲（寵物友善）/);
+assert.match(news[0].body, /NT\$1,000／人（附一杯桂花飲品）/);
 
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
 for (const hex of ['#FAFAFA', '#F2EEEB', '#454545', '#62A297', '#3A7268', '#AF3332', '#66704F', '#D9A441', '#3A2C10']) {
@@ -144,7 +148,8 @@ assert.equal(offerings.explore.cta, '用 LINE 預約');
 assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
 assert.equal(offerings.gathering.title, '每月主題調香');
 assert.equal(offerings.gathering.prices[0].label, '每人');
-assert.equal(offerings.gathering.prices[0].amount, '800');
+assert.equal(offerings.gathering.prices[0].amount, '1,000');
+assert.equal(offerings.gathering.prices[0].note, '含一杯飲品');
 assert.equal(offerings.gathering.takeHome, '10ml 主題香水');
 assert.equal(offerings.gathering.cta, '看本月主題');
 assert.equal(offerings.gathering.href, '/events');
@@ -200,8 +205,8 @@ const session = {
   date: '2026-11-21',
   startTime: '14:00',
   endTime: '16:15',
-  venue: '台北市｜捷運南京復興站旁（詳細地址報名後通知）',
-  price: 'NT$800／人',
+  venue: '士林 凹屋珈琲（寵物友善）',
+  price: 'NT$1,000／人（附一杯桂花飲品）',
   capacity: '限額 10 人，確定開課',
   registrationUrl: '',
 };
@@ -309,7 +314,16 @@ const selling = eventJsonLd(
   at('2026-11-10T12:00:00+08:00'),
 );
 assert.equal(selling.offers.url, 'https://forms.gle/abc');
-assert.equal(selling.offers.price, '800');
+assert.equal(selling.offers.price, '1000');
+const place = venueNote(session.venue);
+assert.equal(place.address, '台北市士林區中山北路五段 505 巷 44 弄 2 號');
+assert.equal(place.transit, '捷運士林站 2 號出口，步行約 1–3 分鐘');
+assert.equal(place.mapUrl, 'https://maps.app.goo.gl/KLmqCZhYWMfzdTNSA');
+assert.equal(place.pet, '寵物友善，歡迎帶毛孩一起來');
+assert.match(place.petCare, /香料和酒精對貓咪、鳥寶寶比較刺激/);
+assert.equal(place.petCare.includes('精油'), false);
+assert.equal(venueNote('台北市區'), null);
+assert.equal(JSON.stringify(detailLd).includes('505 巷'), false);
 
 const art = themeArt({ id: 'osmanthus-tea-room-2026-11', title: '晚寄的桂花' });
 assert.equal(art.alt, '晚寄的桂花 No. 01 主題郵票');
