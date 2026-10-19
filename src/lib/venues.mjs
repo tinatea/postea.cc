@@ -11,6 +11,10 @@ const VENUES = [
     mapLabel: 'Google 地圖',
     pet: '寵物友善，歡迎帶毛孩一起來',
     petCare: '香料和酒精對貓咪、鳥寶寶比較刺激，建議留在家；狗狗請待在離調香桌遠一點的地方。',
+    photos: [
+      { src: '/venues/aowu-table.webp', alt: '凹屋珈琲的長桌', width: 1600, height: 1200 },
+      { src: '/venues/aowu-lounge.webp', alt: '凹屋珈琲的沙發角落', width: 1600, height: 1200 },
+    ],
   },
 ];
 

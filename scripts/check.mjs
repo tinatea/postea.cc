@@ -31,14 +31,19 @@ assert.equal(first.timeNote, '結束後可留在現場交流到 17:30');
 assert.equal(first.registrationUrl, '');
 assert.equal(first.accentColor, '#D9A441');
 assert.equal(first.venue, '士林 凹屋珈琲（寵物友善）');
-assert.equal(first.price, 'NT$1,000／人（附一杯桂花飲品）');
+assert.equal(first.price, 'NT$1,000／人（店內飲品任選一杯）');
 assert.equal(first.capacity, '限額 10 人，確定開課');
 assert.equal(first.id, 'osmanthus-tea-room-2026-11');
 assert.equal(first.title, '「晚寄的桂花」每月主題調香小聚 #1');
-assert.match(first.description, /溫暖的木桌。那個下午，秋天會悄悄變成冬天。桂花在秋天寄出，到的時候已經是冬天了。/);
+assert.match(
+  first.description,
+  /茶室：一杯桂花、空氣裡的大吉嶺、溫暖的木桌。那個下午，秋天會悄悄變成冬天。桂花在秋天寄出，到的時候已經是冬天了。/,
+);
 assert.equal(first.description.includes('季節交接前寄出'), false);
+assert.equal(first.description.includes('剛泡好的大吉嶺'), false);
 assert.match(first.description, /秋天的桂花到了尾聲，晚了一點寄給妳。/);
-assert.match(first.description, /入座先喝一口店裡的桂花飲品，再開始調香/);
+assert.match(first.description, /入座先點一杯喜歡的飲品，再開始調香/);
+assert.equal(first.description.includes('桂花飲品'), false);
 assert.equal(first.description.includes('桂花烏龍'), false);
 assert.match(first.takeHome, /10ml/);
 assert.match(first.takeHome, /配方卡/);
@@ -129,7 +134,8 @@ assert.equal(news[0].body.includes('16:15'), false);
 assert.match(news[0].link, /postea\.cc\/events/);
 assert.match(news[0].body, /限額 10 人，確定開課/);
 assert.match(news[0].body, /士林 凹屋珈琲（寵物友善）/);
-assert.match(news[0].body, /NT\$1,000／人（附一杯桂花飲品）/);
+assert.match(news[0].body, /NT\$1,000／人（店內飲品任選一杯）/);
+assert.equal(news[0].body.includes('桂花飲品'), false);
 
 const theme = fs.readFileSync('src/styles/theme.css', 'utf8');
 for (const hex of ['#FAFAFA', '#F2EEEB', '#454545', '#62A297', '#3A7268', '#AF3332', '#66704F', '#D9A441', '#3A2C10']) {
@@ -175,7 +181,7 @@ assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
 assert.equal(offerings.gathering.title, '每月主題調香');
 assert.equal(offerings.gathering.prices[0].label, '每人');
 assert.equal(offerings.gathering.prices[0].amount, '1,000');
-assert.equal(offerings.gathering.prices[0].note, '含一杯飲品');
+assert.equal(offerings.gathering.prices[0].note, '店內飲品任選一杯');
 assert.equal(offerings.gathering.takeHome, '10ml 主題香水');
 assert.equal(offerings.gathering.cta, '看本月主題');
 assert.equal(offerings.gathering.href, '/events');
@@ -235,7 +241,7 @@ const session = {
   schedule: '14:00 開放入場｜14:30 開始｜預計 16:30 結束',
   timeNote: '結束後可留在現場交流到 17:30',
   venue: '士林 凹屋珈琲（寵物友善）',
-  price: 'NT$1,000／人（附一杯桂花飲品）',
+  price: 'NT$1,000／人（店內飲品任選一杯）',
   capacity: '限額 10 人，確定開課',
   registrationUrl: '',
 };
@@ -352,6 +358,17 @@ assert.equal(place.address, '台北市士林區中山北路五段 505 巷 44 弄
 assert.equal(place.transit, '捷運士林站 2 號出口，步行約 1–3 分鐘');
 assert.equal(place.mapUrl, 'https://maps.app.goo.gl/KLmqCZhYWMfzdTNSA');
 assert.equal(place.pet, '寵物友善，歡迎帶毛孩一起來');
+assert.deepEqual(
+  place.photos.map((photo) => photo.alt),
+  ['凹屋珈琲的長桌', '凹屋珈琲的沙發角落'],
+);
+for (const photo of place.photos) {
+  const file = fs.readFileSync(`public${photo.src}`);
+  assert.ok(file.length < 300 * 1024, `${photo.src} 超過 300KB`);
+  assert.equal(file.includes(Buffer.from('Exif')), false, `${photo.src} 仍有 Exif`);
+  assert.equal(file.includes(Buffer.from('GPS')), false, `${photo.src} 仍有 GPS`);
+}
+assert.equal(venueNote('台北市區')?.photos, undefined);
 assert.match(place.petCare, /香料和酒精對貓咪、鳥寶寶比較刺激/);
 assert.equal(place.petCare.includes('精油'), false);
 assert.equal(venueNote('台北市區'), null);
@@ -403,6 +420,8 @@ for (const file of [...collectText('src'), ...collectText('docs'), ...collectTex
   const text = fs.readFileSync(file, 'utf8');
   assert.equal(text.includes('15:23'), false, `${file} 不該出現 15:23`);
   assert.equal(text.includes('小雪'), false, `${file} 不該出現小雪`);
+  assert.equal(text.includes('桂花飲品'), false, `${file} 不該出現桂花飲品`);
+  assert.equal(text.includes('含一杯飲品'), false, `${file} 不該出現含一杯飲品`);
 }
 for (const file of ['src/pages/about.astro', 'src/pages/experiences.astro', 'src/data/site.yml', 'src/components/EventDetail.astro']) {
   assert.equal(fs.readFileSync(file, 'utf8').includes('TODO'), false, `${file} 仍有待辦字樣`);

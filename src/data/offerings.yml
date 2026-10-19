@@ -34,7 +34,7 @@ gathering:
   prices:
     - label: 每人
       amount: "1,000"
-      note: 含一杯飲品
+      note: 店內飲品任選一杯
   takeHome: 10ml 主題香水
   cta: 看本月主題
   href: /events
