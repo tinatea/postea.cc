@@ -118,14 +118,12 @@ export function parseEventTimes(raw) {
   };
 }
 
-/** 月曆與卡片用的短時間。有開門時間時，從開門算到結束。 */
+/** 月曆、列表、課程卡用的短時間。用活動開始，不用開門時間。 */
 export function compactTime(event) {
-  const door = String(event?.doorTime || '');
   const start = String(event?.startTime || '');
   const end = String(event?.endTime || '');
-  if (door && end) return `${door}–${end}`;
   if (start && end) return `${start}–${end}`;
-  return start || end || door;
+  return start || end;
 }
 
 /** 活動頁時間那一列。有貼上的句子就照登。 */

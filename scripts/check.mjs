@@ -11,6 +11,7 @@ import {
   publishedOnly,
   resolveSignup,
 } from '../src/lib/signup.mjs';
+import { compactTime } from '../src/lib/schedule.mjs';
 import { themeArt } from '../src/lib/theme-art.mjs';
 import { venueNote } from '../src/lib/venues.mjs';
 
@@ -24,6 +25,7 @@ assert.equal(first.date, '2026-11-22');
 assert.equal(first.startTime, '14:30');
 assert.equal(first.endTime, '16:30');
 assert.equal(first.doorTime, '14:00');
+assert.equal(compactTime(first), '14:30–16:30');
 assert.equal(first.schedule, '14:00 開放入場｜14:30 開始｜預計 16:30 結束');
 assert.equal(first.timeNote, '結束後可留在現場交流到 17:30');
 assert.equal(first.registrationUrl, '');
