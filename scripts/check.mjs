@@ -35,6 +35,7 @@ assert.equal(first.price, 'NT$1,000／人（附一杯桂花飲品）');
 assert.equal(first.capacity, '限額 10 人，確定開課');
 assert.equal(first.id, 'osmanthus-tea-room-2026-11');
 assert.equal(first.title, '「晚寄的桂花」每月主題調香小聚 #1');
+assert.match(first.description, /溫暖的木桌。那個下午，秋天會悄悄變成冬天，我們把桂花趕在季節交接前寄出。/);
 assert.match(first.description, /秋天的桂花到了尾聲，晚了一點寄給妳。/);
 assert.match(first.description, /入座先喝一口店裡的桂花飲品，再開始調香/);
 assert.equal(first.description.includes('桂花烏龍'), false);
@@ -396,6 +397,11 @@ for (const file of [...collectText('src'), ...collectText('docs'), ...collectTex
   for (const phrase of bannedPhrases) {
     assert.equal(text.includes(phrase), false, `${file} 仍有最低人數寫法`);
   }
+}
+for (const file of [...collectText('src'), ...collectText('docs'), ...collectText('content'), 'README.md']) {
+  const text = fs.readFileSync(file, 'utf8');
+  assert.equal(text.includes('15:23'), false, `${file} 不該出現 15:23`);
+  assert.equal(text.includes('小雪'), false, `${file} 不該出現小雪`);
 }
 for (const file of ['src/pages/about.astro', 'src/pages/experiences.astro', 'src/data/site.yml', 'src/components/EventDetail.astro']) {
   assert.equal(fs.readFileSync(file, 'utf8').includes('TODO'), false, `${file} 仍有待辦字樣`);
