@@ -14,11 +14,14 @@ const { course } = Astro.props;
       {course.prices.map((price) => (
         <div class="price-row">
           <span>{price.label}</span>
-          <strong>
-            {price.each && <small>{price.each}</small>}
-            <small>NT$</small>
-            {price.amount}
-          </strong>
+          <span class="price-figure">
+            <strong>
+              {price.each && <small>{price.each}</small>}
+              <small>NT$</small>
+              {price.amount}
+            </strong>
+            {price.note && <span class="price-note">（{price.note}）</span>}
+          </span>
         </div>
       ))}
     </div>

@@ -33,7 +33,8 @@ gathering:
     - 限額 10 人，確定開課
   prices:
     - label: 每人
-      amount: "800"
+      amount: "1,000"
+      note: 含一杯飲品
   takeHome: 10ml 主題香水
   cta: 看本月主題
   href: /events
