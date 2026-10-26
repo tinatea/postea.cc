@@ -434,11 +434,6 @@ main {
   font-weight: 500;
 }
 
-.line-id {
-  letter-spacing: 0.02em;
-  font-weight: 600;
-}
-
 .button-large,
 .pending-large {
   min-height: 3.4rem;
@@ -812,6 +807,13 @@ main {
 }
 
 .price-cta {
+  margin-top: 1rem;
+}
+
+.price-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
   margin-top: 1rem;
 }
 
@@ -1225,7 +1227,9 @@ main {
   .pending-large,
   .event-actions .button,
   .event-actions .button-ghost,
-  .event-actions .pending {
+  .event-actions .pending,
+  .contact-actions .button,
+  .price-actions .button {
     width: 100%;
   }
 }

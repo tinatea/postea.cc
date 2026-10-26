@@ -1,7 +1,7 @@
 import { formatEventDate } from './classify.mjs';
 import { detailTime } from './schedule.mjs';
 
-export const LINE_NOTE = '開啟 LINE 不代表報名完成，以工作室確認為準';
+export const ASK_NOTE = '私訊不代表報名完成，以工作室確認為準';
 
 const KNOWN_STATUS = new Set(['即將開放', '報名中', '已額滿', '已取消']);
 
@@ -107,13 +107,13 @@ export function publishedOnly(events) {
 
 /**
  * 公開場次的顯示狀態。順序：已取消 → 已結束 → 報名截止 → 即將開放 → 已額滿 → 報名中。
+ * 報名方式寫 LINE 時略過，不當成入口。只有 https 報名連結才是「前往報名」。
  * @param {Record<string, string | undefined>} event
  * @param {Date} [now]
  */
 export function resolveSignup(event, now = new Date()) {
   const raw = String(event.signupStatus || '').trim();
   const known = KNOWN_STATUS.has(raw) ? raw : '';
-  const lineMode = String(event.signupMethod || '').trim().toUpperCase() === 'LINE';
   const url = String(event.registrationUrl || '').trim();
   const formReady = /^https?:\/\//i.test(url);
   const nowAt = taipeiStamp(now);
@@ -128,11 +128,10 @@ export function resolveSignup(event, now = new Date()) {
   else if (nowAt >= closeAt) status = '報名截止';
   else if (beforeOpen || known === '即將開放' || known === '') status = '即將開放';
   else if (known === '已額滿') status = '已額滿';
-  else if (known === '報名中' && (lineMode || formReady)) status = '報名中';
+  else if (known === '報名中' && formReady) status = '報名中';
 
-  let action = 'line-ask';
-  if (status === '報名中' && lineMode) action = 'line-register';
-  else if (status === '報名中') action = 'form';
+  let action = 'ask';
+  if (status === '報名中') action = 'form';
   else if (status === '已額滿') action = 'others';
   else if (status === '已結束') action = 'recent';
 
@@ -140,7 +139,7 @@ export function resolveSignup(event, now = new Date()) {
   const openLabel =
     status === '即將開放' ? (openAt && openAt > nowAt && openText ? `報名開放時間：${openText}` : '開放時間待公布') : '';
 
-  return { status, action, openLabel, lineMode, formReady, url };
+  return { status, action, openLabel, formReady, url };
 }
 
 /** 首頁與課程頁要推的下一場：還沒結束、也沒取消。 */

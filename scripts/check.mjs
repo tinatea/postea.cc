@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import yaml from 'js-yaml';
 import { splitEvents, formatEventDate } from '../src/lib/classify.mjs';
@@ -7,7 +8,7 @@ import { eventsFromCsv, loadOfferings, parseEventsCsv, parseNewsCsv } from '../s
 import {
   eventJsonLd,
   isPromoted,
-  LINE_NOTE,
+  ASK_NOTE,
   publishedOnly,
   resolveSignup,
 } from '../src/lib/signup.mjs';
@@ -151,13 +152,19 @@ assert.match(fontLink, /family=LXGW\+WenKai\+TC:wght@300;400;700/);
 assert.equal(fontLink.includes('Noto'), false);
 assert.equal(fontLink.includes('ZCOOL'), false);
 assert.equal(fontLink.includes('Postéa'), false);
+assert.match(fontLink, /sameAs: \[site\.instagram, site\.xUrl\]/);
+assert.equal(fontLink.includes('lineUrl'), false);
 
 const site = yaml.load(fs.readFileSync('src/data/site.yml', 'utf8'), { schema: yaml.JSON_SCHEMA });
 assert.equal(site.wordmark, 'POSTÈA');
 assert.equal(site.name, 'Postèa 香語所');
-assert.match(site.lineUrl, /@144eqxql/);
-assert.equal(site.lineId, '@144eqxql');
-assert.match(site.xUrl, /postea_scent/);
+assert.equal(site.instagram, 'https://www.instagram.com/postea.scent/');
+assert.equal(site.instagramHandle, 'postea.scent');
+assert.equal(site.instagramDm, 'https://ig.me/m/postea.scent');
+assert.equal(site.xUrl, 'https://x.com/postea_scent');
+assert.equal(site.xHandle, 'postea_scent');
+assert.equal(Object.hasOwn(site, 'lineUrl'), false);
+assert.equal(Object.hasOwn(site, 'lineId'), false);
 assert.equal(site.sheetId, '1VIyh9mh76vbfhPye9M4UE1KYYs0ORjj-hxTGaeFwiGg');
 
 const offerings = yaml.load(fs.readFileSync('src/data/offerings.yml', 'utf8'), {
@@ -176,8 +183,8 @@ assert.deepEqual(
 );
 assert.equal(offerings.explore.duration, '約 1.5 至 2 小時');
 assert.equal(offerings.explore.sprayVolume, '50ml');
-assert.equal(offerings.explore.cta, '用 LINE 預約');
-assert.equal(offerings.explore.href, 'https://line.me/R/ti/p/@144eqxql');
+assert.equal(offerings.explore.cta, '');
+assert.equal(offerings.explore.href, '');
 assert.equal(offerings.gathering.title, '每月主題調香');
 assert.equal(offerings.gathering.prices[0].label, '每人');
 assert.equal(offerings.gathering.prices[0].amount, '1,000');
@@ -198,7 +205,10 @@ assert.equal(loadedOfferings.gathering.takeHome, '10ml 主題香水');
 assert.equal(loadedOfferings.explore.takeHome.includes('＿'), false);
 assert.equal(loadedOfferings.explore.prices.length, 3);
 const experiences = fs.readFileSync('src/pages/experiences.astro', 'utf8');
-assert.match(experiences, /用 LINE 預約|explore\.cta/);
+assert.match(experiences, /私訊 IG 預約/);
+assert.match(experiences, /私訊 X 預約/);
+assert.match(experiences, /site\.instagramDm/);
+assert.equal(experiences.includes('LINE'), false);
 assert.match(experiences, /calendar-blank/);
 for (const file of ['README.md', 'src/pages/experiences.astro', 'src/pages/index.astro', 'docs/維護說明.md']) {
   const text = fs.readFileSync(file, 'utf8');
@@ -246,7 +256,7 @@ const session = {
   registrationUrl: '',
 };
 assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).status, '即將開放');
-assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).action, 'line-ask');
+assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).action, 'ask');
 assert.equal(resolveSignup(session, at('2026-10-16T12:00:00+08:00')).openLabel, '開放時間待公布');
 assert.equal(resolveSignup({ ...session, signupStatus: '已取消' }, at('2026-12-01T12:00:00+08:00')).status, '已取消');
 assert.equal(resolveSignup(session, at('2026-11-22T16:30:00+08:00')).status, '已結束');
@@ -268,10 +278,30 @@ assert.equal(
   ).action,
   'form',
 );
-assert.equal(
-  resolveSignup({ ...session, ...openWindow, signupMethod: 'LINE' }, at('2026-11-10T12:00:00+08:00')).action,
-  'line-register',
+const lineOnly = resolveSignup(
+  { ...session, ...openWindow, signupMethod: 'LINE' },
+  at('2026-11-10T12:00:00+08:00'),
 );
+assert.equal(lineOnly.status, '即將開放');
+assert.equal(lineOnly.action, 'ask');
+const lineWithForm = resolveSignup(
+  { ...session, ...openWindow, signupMethod: 'LINE', registrationUrl: 'https://forms.gle/abc' },
+  at('2026-11-10T12:00:00+08:00'),
+);
+assert.equal(lineWithForm.status, '報名中');
+assert.equal(lineWithForm.action, 'form');
+const osmanthusWindow = {
+  signupStatus: '報名中',
+  signupOpen: '2026-10-27 12:00',
+  signupClose: '2026-11-19 23:59',
+  registrationUrl: 'https://forms.gle/abc',
+};
+const beforeNoon = resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T06:07:00+08:00'));
+assert.equal(beforeNoon.status, '即將開放');
+assert.equal(beforeNoon.action, 'ask');
+assert.equal(beforeNoon.openLabel, '報名開放時間：2026年10月27日 12:00');
+assert.equal(resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T12:00:00+08:00')).action, 'form');
+assert.equal(resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T12:01:00+08:00')).status, '報名中');
 assert.equal(
   resolveSignup({ ...session, signupStatus: '已額滿' }, at('2026-11-10T12:00:00+08:00')).status,
   '即將開放',
@@ -326,7 +356,36 @@ assert.equal(
 );
 assert.equal(isPromoted({ ...session, signupStatus: '已取消' }, at('2026-10-16T12:00:00+08:00')), false);
 assert.equal(isPromoted(session, at('2026-10-16T12:00:00+08:00')), true);
-assert.match(LINE_NOTE, /開啟 LINE 不代表報名完成/);
+assert.match(ASK_NOTE, /私訊不代表報名完成/);
+const signupView = fs.readFileSync('src/components/SignupActions.astro', 'utf8');
+assert.match(signupView, /前往報名/);
+assert.match(signupView, /在新視窗開啟報名表/);
+assert.match(signupView, /這個按鈕會前往外部報名頁面/);
+assert.match(signupView, /私訊 IG 詢問/);
+assert.match(signupView, /私訊 X 詢問/);
+assert.match(signupView, /ASK_NOTE/);
+assert.equal(signupView.includes('LINE'), false);
+const about = fs.readFileSync('src/pages/about.astro', 'utf8');
+assert.match(about, /Instagram、X 的私訊方式/);
+assert.match(about, /私訊 IG 詢問/);
+assert.equal(about.includes('LINE'), false);
+
+function filesUnder(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...filesUnder(full));
+    else out.push(full);
+  }
+  return out;
+}
+const bannedLine = ['line.me', '144eqxql', 'LINE 詢問', '用 LINE', '開啟 LINE', 'lineUrl', 'lineId'];
+for (const file of [...filesUnder('src'), ...filesUnder('docs'), 'README.md']) {
+  const text = fs.readFileSync(file, 'utf8');
+  for (const token of bannedLine) {
+    assert.equal(text.includes(token), false, `${file} 仍有 ${token}`);
+  }
+}
 
 const optionalSheet = parseEventsCsv(
   '活動名稱,日期,發布狀態,報名狀態,報名開放時間,報名截止時間,報名方式\n公開場,2026-12-01,公開,報名中,下週三,不是時間,LINE\n草稿場,2026-12-02,草稿,,,,\n空白場,2026-12-03,,,,,\n',
@@ -353,6 +412,20 @@ const selling = eventJsonLd(
 );
 assert.equal(selling.offers.url, 'https://forms.gle/abc');
 assert.equal(selling.offers.price, '1000');
+const lineSelling = eventJsonLd(
+  { ...session, ...openWindow, signupMethod: 'LINE', registrationUrl: 'https://forms.gle/abc' },
+  { siteUrl: 'https://postea.cc' },
+  at('2026-11-10T12:00:00+08:00'),
+);
+assert.equal(lineSelling.offers.url, 'https://forms.gle/abc');
+assert.equal(
+  eventJsonLd(
+    { ...session, ...openWindow, signupMethod: 'LINE' },
+    { siteUrl: 'https://postea.cc' },
+    at('2026-11-10T12:00:00+08:00'),
+  ).offers,
+  undefined,
+);
 const place = venueNote(session.venue);
 assert.equal(place.address, '台北市士林區中山北路五段 505 巷 44 弄 2 號');
 assert.equal(place.transit, '捷運士林站 2 號出口，步行約 1–3 分鐘');

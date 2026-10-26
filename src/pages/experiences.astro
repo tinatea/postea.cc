@@ -5,13 +5,10 @@ import PriceRows from '../components/PriceRows.astro';
 import { shortEventName } from '../lib/calendar.mjs';
 import { splitEvents, taipeiToday } from '../lib/classify.mjs';
 import { isPromoted } from '../lib/signup.mjs';
-import { loadEvents, loadOfferings } from '../lib/load';
+import { loadEvents, loadOfferings, loadSite } from '../lib/load';
 import type { WorkshopEvent } from '../lib/types';
 
-function external(href: string) {
-  return /^https?:\/\//i.test(href);
-}
-
+const site = loadSite();
 const { explore, gathering, choose } = loadOfferings();
 const { upcoming } = splitEvents(await loadEvents(), taipeiToday());
 const next = upcoming.find((event) => isPromoted(event));
@@ -54,15 +51,23 @@ const exploreTags = [explore.duration, explore.takeHome].filter(Boolean);
         }
         <PriceRows course={explore} />
         {
-          explore.cta && explore.href && (
-            <a
-              class="button button-secondary price-cta"
-              href={explore.href}
-              target={external(explore.href) ? '_blank' : undefined}
-              rel={external(explore.href) ? 'noopener noreferrer' : undefined}
-            >
-              {explore.cta}
-            </a>
+          (site.instagramDm || site.xUrl) && (
+            <div class="price-actions">
+              {
+                site.instagramDm && (
+                  <a class="button button-secondary" href={site.instagramDm} rel="noopener noreferrer">
+                    私訊 IG 預約
+                  </a>
+                )
+              }
+              {
+                site.xUrl && (
+                  <a class="button button-secondary" href={site.xUrl} rel="noopener noreferrer">
+                    私訊 X 預約
+                  </a>
+                )
+              }
+            </div>
           )
         }
       </section>

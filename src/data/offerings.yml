@@ -19,8 +19,9 @@ explore:
   duration: 約 1.5 至 2 小時
   perfume: 30ml 淡香水
   sprayVolume: 50ml
-  cta: 用 LINE 預約
-  href: https://line.me/R/ti/p/@144eqxql
+  # 預約按鈕在課程頁，連到 site.yml 的 Instagram 私訊與 X。這裡留空。
+  cta: ""
+  href: ""
 
 gathering:
   title: 每月主題調香

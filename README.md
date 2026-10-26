@@ -47,6 +47,6 @@
 
 - 網站 [postea.cc](https://postea.cc)
 - Instagram [@postea.scent](https://www.instagram.com/postea.scent/)
-- LINE [@144eqxql](https://line.me/R/ti/p/@144eqxql)
+- X [@postea_scent](https://x.com/postea_scent)
 
 網站維護說明請見 [docs/維護說明.md](docs/維護說明.md)。

@@ -6,14 +6,11 @@ interface Props {
   tagline: string;
   instagram: string;
   instagramHandle: string;
-  lineUrl: string;
-  lineId: string;
   xUrl: string;
   xHandle: string;
 }
 
-const { wordmark, name, nameZh, tagline, instagram, instagramHandle, lineUrl, lineId, xUrl, xHandle } =
-  Astro.props;
+const { wordmark, name, nameZh, tagline, instagram, instagramHandle, xUrl, xHandle } = Astro.props;
 const year = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Taipei',
   year: 'numeric',
@@ -34,15 +31,6 @@ const year = new Intl.DateTimeFormat('en-CA', {
           <li>
             <a href={instagram} rel="noopener noreferrer">Instagram @{instagramHandle}</a>
           </li>
-          {
-            lineUrl && (
-              <li>
-                <a href={lineUrl} rel="noopener noreferrer">
-                  LINE {lineId}
-                </a>
-              </li>
-            )
-          }
           {
             xUrl && (
               <li>

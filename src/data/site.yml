@@ -8,12 +8,10 @@ bio: |
   在香語所，每一瓶香，都是一則心事。將心意封存，待開瓶時，氣味會代替說完那句沒說出口的話。
 instagram: https://www.instagram.com/postea.scent/
 instagramHandle: postea.scent
+# 私訊按鈕。ig.me/m/帳號 是 Instagram 的標準私訊連結。
+instagramDm: https://ig.me/m/postea.scent
 
-# LINE 官方帳號。lineUrl 是按鈕連過去的網址，lineId 是畫面上看到的帳號。
-lineUrl: https://line.me/R/ti/p/@144eqxql
-lineId: "@144eqxql"
-
-# X（原 Twitter）
+# X（原 Twitter）。按鈕連到個人檔，由對方從個人檔私訊。
 xUrl: https://x.com/postea_scent
 xHandle: postea_scent
 
