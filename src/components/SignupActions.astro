@@ -1,5 +1,5 @@
 ---
-import { LINE_NOTE, resolveSignup } from '../lib/signup.mjs';
+import { ASK_NOTE, resolveSignup } from '../lib/signup.mjs';
 import { loadSite } from '../lib/load';
 import type { WorkshopEvent } from '../lib/types';
 
@@ -13,8 +13,7 @@ const { event, featured = false, showCalendarLink = false } = Astro.props;
 const site = loadSite();
 const signup = resolveSignup(event);
 const large = featured ? 'button-large' : undefined;
-const lineLabel = signup.action === 'line-register' ? '用 LINE 報名' : 'LINE 詢問';
-const showLine = Boolean(site.lineUrl) && (signup.action === 'line-ask' || signup.action === 'line-register');
+const showAsk = signup.action === 'ask' && Boolean(site.instagramDm || site.xUrl);
 const showForm = signup.action === 'form';
 const showOthersButton = signup.status === '已額滿';
 const showRecent = signup.status === '已結束';
@@ -23,10 +22,16 @@ const showOthersLink = signup.status === '報名截止' || signup.status === '�
 
 <div class="event-actions">
   {
-    showLine && (
-      <a class:list={['button', large]} href={site.lineUrl} rel="noopener noreferrer">
-        {lineLabel}
-        {site.lineId && <span class="line-id">{site.lineId}</span>}
+    showAsk && site.instagramDm && (
+      <a class:list={['button', large]} href={site.instagramDm} rel="noopener noreferrer">
+        私訊 IG 詢問
+      </a>
+    )
+  }
+  {
+    showAsk && site.xUrl && (
+      <a class:list={['button', 'button-secondary', large]} href={site.xUrl} rel="noopener noreferrer">
+        私訊 X 詢問
       </a>
     )
   }
@@ -66,7 +71,7 @@ const showOthersLink = signup.status === '報名截止' || signup.status === '�
       </a>
     )
   }
-  {showLine && <p class="signup-note">{LINE_NOTE}</p>}
+  {showAsk && <p class="signup-note">{ASK_NOTE}</p>}
   {showForm && <p class="signup-note">這個按鈕會前往外部報名頁面。</p>}
   {signup.openLabel && <p class="signup-when">{signup.openLabel}</p>}
 </div>

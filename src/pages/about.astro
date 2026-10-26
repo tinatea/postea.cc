@@ -9,7 +9,7 @@ const paragraphs = site.about
   .filter(Boolean);
 ---
 
-<Base title="關於與聯絡" description="關於 Postèa 香語所與 Tina，以及 Instagram、LINE、X 聯絡方式。">
+<Base title="關於與聯絡" description="關於 Postèa 香語所與 Tina，以及 Instagram、X 的私訊方式。">
   <div class="wrap">
     <header class="page-head">
       <p class="kicker">關於</p>
@@ -27,16 +27,6 @@ const paragraphs = site.about
           <a href={site.instagram} rel="noopener noreferrer">@{site.instagramHandle}</a>
         </li>
         {
-          site.lineUrl && (
-            <li>
-              LINE：
-              <a href={site.lineUrl} rel="noopener noreferrer">
-                {site.lineId}
-              </a>
-            </li>
-          )
-        }
-        {
           site.xUrl && (
             <li>
               X：
@@ -48,12 +38,22 @@ const paragraphs = site.about
         }
       </ul>
       {
-        site.lineUrl && (
+        (site.instagramDm || site.xUrl) && (
           <div class="contact-actions">
-            <a class="button" href={site.lineUrl} rel="noopener noreferrer">
-              LINE 詢問
-              {site.lineId && <span class="line-id">{site.lineId}</span>}
-            </a>
+            {
+              site.instagramDm && (
+                <a class="button" href={site.instagramDm} rel="noopener noreferrer">
+                  私訊 IG 詢問
+                </a>
+              )
+            }
+            {
+              site.xUrl && (
+                <a class="button button-secondary" href={site.xUrl} rel="noopener noreferrer">
+                  私訊 X 詢問
+                </a>
+              )
+            }
           </div>
         )
       }

@@ -30,8 +30,7 @@ export type SiteConfig = {
   bio: string;
   instagram: string;
   instagramHandle: string;
-  lineUrl: string;
-  lineId: string;
+  instagramDm: string;
   xUrl: string;
   xHandle: string;
   siteUrl: string;
