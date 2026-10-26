@@ -8,6 +8,8 @@ on:
   schedule:
     # 台北時間 06:07（UTC 22:07）。讀 Google 試算表，更新活動與最新消息。
     - cron: '7 22 * * *'
+    # 報名開放：台北時間 10/27 12:01（UTC 04:01），開放後可移除
+    - cron: '1 4 27 10 *'
 
 permissions:
   contents: read
