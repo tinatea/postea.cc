@@ -300,8 +300,46 @@ const beforeNoon = resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10
 assert.equal(beforeNoon.status, '即將開放');
 assert.equal(beforeNoon.action, 'ask');
 assert.equal(beforeNoon.openLabel, '報名開放時間：2026年10月27日 12:00');
+assert.equal(beforeNoon.closeLabel, '');
 assert.equal(resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T12:00:00+08:00')).action, 'form');
-assert.equal(resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T12:01:00+08:00')).status, '報名中');
+const osmanthusOpen = resolveSignup({ ...session, ...osmanthusWindow }, at('2026-10-27T12:01:00+08:00'));
+assert.equal(osmanthusOpen.status, '報名中');
+assert.equal(osmanthusOpen.closeLabel, '報名截止：11/19（四）23:59');
+assert.equal(lineWithForm.closeLabel, '報名截止：11/21（六）12:00');
+const dateOnlyClose = resolveSignup(
+  {
+    ...session,
+    signupStatus: '報名中',
+    signupOpen: '2026-11-01',
+    signupClose: '2026-11-19',
+    registrationUrl: 'https://forms.gle/abc',
+  },
+  at('2026-11-10T12:00:00+08:00'),
+);
+assert.equal(dateOnlyClose.closeLabel, '報名截止：11/19（四）23:59');
+const noClose = resolveSignup(
+  {
+    ...session,
+    signupStatus: '報名中',
+    signupOpen: '2026-11-01 10:00',
+    registrationUrl: 'https://forms.gle/abc',
+  },
+  at('2026-11-10T12:00:00+08:00'),
+);
+assert.equal(noClose.status, '報名中');
+assert.equal(noClose.closeLabel, '');
+const clampedClose = resolveSignup(
+  {
+    ...session,
+    signupStatus: '報名中',
+    signupOpen: '2026-11-01 10:00',
+    signupClose: '2026-11-22 18:00',
+    registrationUrl: 'https://forms.gle/abc',
+  },
+  at('2026-11-22T15:00:00+08:00'),
+);
+assert.equal(clampedClose.status, '報名中');
+assert.equal(clampedClose.closeLabel, '報名截止：11/22（日）16:30');
 assert.equal(
   resolveSignup({ ...session, signupStatus: '已額滿' }, at('2026-11-10T12:00:00+08:00')).status,
   '即將開放',
@@ -364,6 +402,7 @@ assert.match(signupView, /這個按鈕會前往外部報名頁面/);
 assert.match(signupView, /私訊 IG 詢問/);
 assert.match(signupView, /私訊 X 詢問/);
 assert.match(signupView, /ASK_NOTE/);
+assert.match(signupView, /closeLabel/);
 assert.equal(signupView.includes('LINE'), false);
 const about = fs.readFileSync('src/pages/about.astro', 'utf8');
 assert.match(about, /Instagram、X 的私訊方式/);
