@@ -72,6 +72,7 @@ const showOthersLink = signup.status === '報名截止' || signup.status === '�
     )
   }
   {showAsk && <p class="signup-note">{ASK_NOTE}</p>}
+  {signup.closeLabel && <p class="signup-when">{signup.closeLabel}</p>}
   {showForm && <p class="signup-note">這個按鈕會前往外部報名頁面。</p>}
   {signup.openLabel && <p class="signup-when">{signup.openLabel}</p>}
 </div>

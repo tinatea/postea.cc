@@ -60,6 +60,22 @@ export function parseTaipeiStamp(value, boundary = 'start') {
   return `${date}T${clock}`;
 }
 
+/** @param {string} date `YYYY-MM-DD` in Taipei. */
+function taipeiWeekday(date) {
+  const label = new Intl.DateTimeFormat('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    weekday: 'short',
+  }).format(new Date(`${date}T12:00:00+08:00`));
+  return label.replace('週', '').replace('星期', '');
+}
+
+/** @param {string} stamp `YYYY-MM-DDTHH:MM:SS` */
+function formatCloseLabel(stamp) {
+  const [date, time] = stamp.split('T');
+  const [, month, day] = date.split('-').map(Number);
+  return `報名截止：${month}/${day}（${taipeiWeekday(date)}）${time.slice(0, 5)}`;
+}
+
 /** @param {unknown} value */
 export function formatTaipeiInput(value) {
   const text = String(value ?? '').trim();
@@ -138,8 +154,10 @@ export function resolveSignup(event, now = new Date()) {
   const openText = formatTaipeiInput(event.signupOpen);
   const openLabel =
     status === '即將開放' ? (openAt && openAt > nowAt && openText ? `報名開放時間：${openText}` : '開放時間待公布') : '';
+  const parsedClose = parseTaipeiStamp(event.signupClose, 'end');
+  const closeLabel = status === '報名中' && parsedClose ? formatCloseLabel(closeAt) : '';
 
-  return { status, action, openLabel, formReady, url };
+  return { status, action, openLabel, closeLabel, formReady, url };
 }
 
 /** 首頁與課程頁要推的下一場：還沒結束、也沒取消。 */
